@@ -1,6 +1,12 @@
 # Working with tests: locally and in CI
 
-## Running tests locally
+**Content:**
+   * [Running tests locally](#tests-locally)
+   * [Running tests in CI](#tests-in-ci)
+   * [CI stages](#ci-stages)
+   * [FAQ](#faq)
+
+## <a name="tests-locally"></a>Running tests locally
 
 Before pushing your changes to a remote fork, you will want to check that your code is working correctly. 
 To do this, you can run tests locally.
@@ -60,7 +66,7 @@ To run tests locally, you need to perform several steps in PyCharm:
 > place of code and execute debugging by clicking a 'bug' button.
 
 
-## Running tests in CI
+## <a name="tests-in-ci"></a>Running tests in CI
 
 Tests will never run until you create a Pull Request.   
 
@@ -76,16 +82,33 @@ or click **Checks** in the toolbar.
 
 Inspect each step by clicking through the list to the left.
 
+## <a name="ci-stages"></a>CI stages
 
-## Frequently asked questions
+1. Stage 1. Style
+   1. Stage 1.1. PR Name
+   1. Stage 1.2. Code style (`pylint`, `flake8`)
+   
+1. Stage 2. Crawler
+   1. Stage 2.1. Crawler config validation (we ensure that crawler has certain sanity checks)
+   1. Stage 2.2. `Crawler` instantiation validation
+   1. Stage 2.3. `Parser` instantiation validation
+   1. Stage 2.4. Articles downloading
+   1. Stage 2.5. Dataset volume validation
+   1. Stage 2.6. Dataset structure validation
+   
+1. Stage 3. Text Processing Pipeline
+   1. Stage 3.1. Dataset sanity checks (we ensure that pipeline has certain sanity checks)
+   1. Stage 3.2. `CorpusManager` sanity checks (we ensure that pipeline identifies all articles correctly)
+   1. Stage 3.3. `MorphologicalToken` sanity checks (we ensure that pipeline displays all tokens appropriately)
+   1. Stage 3.4. Admin data processing
+   1. Stage 3.5. Student dataset processing
+   1. Stage 3.6. Student dataset validation
+   
+1. Stage 4. Additional tasks
+   1. stage 4.1. `POSFrequencyPipeline` checks
+   1. Stage 4.2. Frequency visualization
 
-### Question 1. Why is my CI job cancelled?
+## <a name="faq"></a>FAQ
 
-**Answer**: usually that happens because your CI check runs for too long. Possible reasons is that you
-do not control number of articles that you collect from your seed URL. If you feel that 
-the problem is with infrastructure, call a mentor in the group chat.
-
-### Question 2. Why is my CI job not started?
-
-**Answer**: usually that happens because your fork has conflicts with a base repository. Resolve them
-by merging the upstream, or if it all sounds new for you,  call a mentor in the group chat.
+If you still have questions about running tests, or you have problems with it,
+we hope you will find a solution in [FAQ: Running tests](faq.md#faq-tests).

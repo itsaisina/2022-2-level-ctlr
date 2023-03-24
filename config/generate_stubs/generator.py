@@ -68,6 +68,13 @@ def cleanup_code(source_code_path: Path) -> str:
                                                       for name in names_to_import]))
                 continue
 
+        if isinstance(decl, ast.ClassDef) and decl.bases:
+            name = decl.bases[0]
+            if decl.bases and isinstance(name, ast.Name) and \
+                    hasattr(name, 'id') and \
+                    getattr(name, 'id') == 'Exception':
+                decl = []  # type: ignore
+
         if isinstance(decl, ast.ClassDef):
             for class_decl in decl.body:
                 remove_implementation_from_function(class_decl, parent=decl)

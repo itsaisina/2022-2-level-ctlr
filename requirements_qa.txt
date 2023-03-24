@@ -5,6 +5,7 @@ flake8==6.0.0
 flake8-isort==6.0.0
 mypy==0.991
 pandas-stubs==1.5.3.230203
+pymdown-extensions==9.5
 pylint==2.15.10
 pyspelling==2.7.3
 pytest==6.2.5

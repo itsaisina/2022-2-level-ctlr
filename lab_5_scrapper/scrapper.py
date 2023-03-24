@@ -9,14 +9,6 @@ class Config:
     Unpacks and validates configurations
     """
 
-    seed_urls: list[str]
-    total_articles_to_find_and_parse: int
-    headers: dict[str, str]
-    encoding: str
-    timeout: int
-    verify_certificate: bool
-    headless_mode: bool
-
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
@@ -166,7 +158,6 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    # YOUR CODE GOES HERE
     pass
 
 

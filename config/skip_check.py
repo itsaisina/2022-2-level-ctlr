@@ -8,7 +8,6 @@ from typing import Optional
 from tap import Tap
 
 from config.collect_coverage.run_coverage import get_target_score
-from config.stage_1_style_tests.pr_name_check import is_author_admin
 from config.test_params import PROJECT_ROOT
 
 

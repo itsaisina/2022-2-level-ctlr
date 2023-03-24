@@ -16,7 +16,7 @@
     6. **FEATS**: List of morphological features from the universal feature inventory or from a defined language-specific extension; underscore if not available.
        * As per [this format](https://universaldependencies.org/u/feat/index.html)
        * Structured as `FeatureName=Value|FeatureName=Value|FeatureName=Value...` 
-         * where `FeatureName` is a name of the morphological feature of the token (e.g., `Number`) and `Value` is the actual value of the feature (e.g., `Sing` - short for singular)
+         * where `FeatureName` is a name of the morphological feature of the token (for example, `Number`) and `Value` is the actual value of the feature (for example, `Sing` - short for singular)
     
     7. **HEAD**: Head of the current word, which is either a value of ID or zero (0).
     
@@ -94,7 +94,7 @@ It is structured as follows:
 
 * `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
 
-Where `FeatureName` is a name of the morphological feature of the token (e.g., `Number`) and `Value` is the actual value of the feature (e.g., `Sing` - short for singular).
+Where `FeatureName` is a name of the morphological feature of the token (for example, `Number`) and `Value` is the actual value of the feature (for example, `Sing` - short for singular).
 
 Example:
 * `Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing`
@@ -193,7 +193,7 @@ Parsing of `OpencorporaTag('NOUN,anim,masc sing,nomn')` to the UD format:
 
 **NB**: The complete mapping of features from PyMorphy and Mystem to the UD format can be found in the [`tags_mapping.json`](data/tags_mapping.json).
 
-As different parts of speech have different tags (e.g.: _**verbs**_ have _**tense**_ while _**nouns**_ do not), it is important to make the parsing 
+As different parts of speech have different tags (for example: _**verbs**_ have _**tense**_ while _**nouns**_ do not), it is important to make the parsing 
 per part of speech.
 
 As per the UD format, the morphological features are structured as following:
