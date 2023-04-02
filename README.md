@@ -43,32 +43,35 @@ Instructors:
 
 ## Lectures history
 
-|Date|Lecture topic|Important links|
-|:--:|:---|:---|
-|13.03.2022|**Lecture:** Introduction to technical track. | [Lab no. 5 description](./lab_5_scrapper/README.md) |
-|17.03.2022|**Seminar:** 3rd party libraries. | N/A |
-|20.03.2022|**Lecture:** Requests and `HTML`. | [Listing](./seminars/seminar_03_20_2023/try_requests.py) |
+|    Date    | Lecture topic                                 | Important links            |
+|:----------:|:----------------------------------------------|:---------------------------|
+| 13.03.2022 | **Lecture:** Introduction to technical track. | [Lab no. 5 description][7] |
+| 17.03.2022 | **Seminar:** 3rd party libraries.             | N/A                        |
+| 20.03.2022 | **Lecture:** Requests and `HTML`.             | [Listing][8]               |
 
-You can find a more complete summary from lectures as a [list of topics](./docs/public/lectures_content.md). 
+You can find a more complete summary from lectures as a 
+[list of topics](./docs/public/lectures_content.md). 
 Более полное содержание пройденных занятий в виде списка ключевых тем.
 
 ## Technical solution
 
-| Module                                                       | Description                                           | Component | I need to know them, if I want to get at least |
-|:-------------------------------------------------------------|:------------------------------------------------------|:---|:--|
-| [`pathlib`](https://pypi.org/project/pathlib/)               | module for working with file paths                    | scrapper | 4 |
-| [`requests`](https://pypi.org/project/requests/)             | module for downloading web pages                      | scrapper | 4 |
-| [`BeautifulSoup4`](https://pypi.org/project/beautifulsoup4/) | module for finding information on web pages           | scrapper | 4 |
-| [`lxml`](https://pypi.org/project/lxml/)                     | **Optional** module for parsing HTML as a structure   | scrapper | 6 |
-| [`selenium`](https://pypi.org/project/lxml/)                 | **Optional** module for processing dynamic websites   | scrapper | 10 |
-| [`pymystem3`](https://pypi.org/project/pymystem3/)           | module for morphological analysis                     | pipeline | 6 |
+| Module                | Description                              | Component | Need to get |
+|:----------------------|:-----------------------------------------|:----------|:------------|
+| [`pathlib`][1]        | working with file paths                  | scrapper  | 4           |
+| [`requests`][2]       | downloading web pages                    | scrapper  | 4           |
+| [`BeautifulSoup4`][3] | finding information on web pages         | scrapper  | 4           |
+| [`lxml`][4]           | **Optional** parsing HTML                | scrapper  | 6           |
+| [`selenium`][5]       | **Optional** processing dynamic websites | scrapper  | 10          |
+| [`pymystem3`][6]      | module for morphological analysis        | pipeline  | 6           |
 
 Software solution is built on top of three components:
-1. [`scrapper.py`](./lab_5_scrapper/scrapper.py) - a module for finding articles from the given media, extracting text and
+1. [`scrapper.py`](./lab_5_scrapper/scrapper.py) - a module for finding articles 
+   from the given media, extracting text and
    dumping it to the file system. Students need to implement it.
 1. `pipeline.py` - a module for processing text: point-of-speech tagging and 
    basic morphological analysis. Students need to implement it.
-1. [`article.py`](core_utils/article/article.py) - a module for article abstraction to encapsulate low-level
+1. [`article.py`](core_utils/article/article.py) - a module for article abstraction 
+   to encapsulate low-level
    manipulations with the article
    
 ## Handing over your work
@@ -79,31 +82,46 @@ Order of handing over:
 2. a student has explained the work of the program and showed it in action.
 3. a student has completed the min-task from a mentor that requires some slight code modifications.
 4. a student receives a mark:
-   1. that corresponds to the expected one, if all the steps above are completed and mentor is satisfied with 
-      the answer;
-   2. one point bigger than the expected one, if all the steps above are completed and mentor is very 
+   1. that corresponds to the expected one, if all the steps above are completed and mentor is 
       satisfied with the answer;
-   3. one point smaller than the expected one, if a lab is handed over one week later than the deadline and 
-      criteria from 4.1 are satisfied;
-   4. two points smaller than the expected one, if a lab is handed over more than one week later than 
-      the deadline and criteria from 4.1 are satisfied.
+   2. one point bigger than the expected one, if all the steps above are completed and 
+      mentor is very satisfied with the answer;
+   3. one point smaller than the expected one, if a lab is handed over one week later than the 
+      deadline and criteria from 4.1 are satisfied;
+   4. two points smaller than the expected one, if a lab is handed over more than one week later 
+      than the deadline and criteria from 4.1 are satisfied.
 
-> NOTE: a student might improve their mark for the lab, if they complete tasks of the next level after handing over
+> NOTE: a student might improve their mark for the lab, if they complete 
+> tasks of the next level after handing over
 > the lab.
 
 A lab work is accepted for oral presentation if all the criteria below are satisfied:
 
 1. there is a Pull Request (PR) with a correctly formatted name:
-   `Scrapper, <NAME> <SURNAME> - <UNIVERSITY GROUP NAME>`. Example: `Scrapper, Valeriya Kuznetsova - 19FPL1`.
-2. has a filled file `target_score.txt` with an expected mark. Acceptable values: 4, 6, 8, 10.
+   `Scrapper, <NAME> <SURNAME> - <UNIVERSITY GROUP NAME>`. 
+   Example: `Scrapper, Valeriya Kuznetsova - 19FPL1`.
+2. has a filled file `target_score.txt` with an expected mark. 
+   Acceptable values: 4, 6, 8, 10.
 3. has green status.
 4. has a label `done`, set by mentor.
  
 ## Resources
 
-1. Academic performance: [link](https://docs.google.com/spreadsheets/d/19DS6F6_NrgjGbLUjFm9-REuuaECvApEW_o4pHvaXyLQ) 
-1. Media websites list: [link](https://docs.google.com/spreadsheets/d/11mmZCKW0WK7rZlpg3eOBA074zwWiXgJjivVUIdDe6-E)
-1. Python programming course from previous semester: [link](https://github.com/fipl-hse/2022-2-level-labs)
+1. Academic performance: [link][9]
+1. Media websites list: [link][10]
+1. Python programming course from previous semester: [link]
 1. Scrapping tutorials: [YouTube series (russian)](https://youtu.be/7hn1_t2ZtJQ)
 1. [HOWTO: Set up your fork](./docs/public/starting_guide.md)
 1. [HOWTO: Running tests](./docs/public/tests.md)
+
+[1]: https://pypi.org/project/pathlib/
+[2]: https://pypi.org/project/requests/
+[3]: https://pypi.org/project/beautifulsoup4/
+[4]: https://pypi.org/project/lxml/
+[5]: https://pypi.org/project/selenium/
+[6]: https://pypi.org/project/pymystem3/
+[7]: ./lab_5_scrapper/README.md
+[8]: ./seminars/seminar_03_20_2023/try_requests.py
+[9]: https://docs.google.com/spreadsheets/d/19DS6F6_NrgjGbLUjFm9-REuuaECvApEW_o4pHvaXyLQ
+[10]: https://docs.google.com/spreadsheets/d/11mmZCKW0WK7rZlpg3eOBA074zwWiXgJjivVUIdDe6-E
+[11]: https://github.com/fipl-hse/2022-2-level-labs

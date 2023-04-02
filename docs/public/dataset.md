@@ -12,7 +12,6 @@ The description of the structure and each of the elements of the dataset is prov
                 +-- 1_raw.txt <- the raw text of the article with the ID as the name
                 +-- 1_cleaned.txt <- lowercased text with no punctuation
                 +-- 1_morphological_conllu.conllu <- UD text format with morphological tags 
-                +-- 2_full_conllu.conllu <- UD text format with morphological and syntactic tags
                 +-- 1_meta.json <- the meta-information of the article
                 +-- 2_raw.txt
                 +-- 2_cleaned.txt

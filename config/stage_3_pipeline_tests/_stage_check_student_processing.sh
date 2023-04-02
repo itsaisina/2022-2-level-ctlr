@@ -10,8 +10,8 @@ if [[ ${TARGET_SCORE} != 0 ]]; then
   mkdir -p tmp/articles
   mv *_cleaned.txt tmp/articles
   if [[ ${TARGET_SCORE} != 4 ]]; then
-    mv *_meta.json tmp/articles
     mv *_morphological_conllu.conllu tmp/articles
+    mv *_meta.json tmp/articles
   fi
   mv *_raw.txt tmp/articles
   bash config/stage_3_pipeline_tests/s3_5_student_text_preprocess.sh

@@ -10,4 +10,4 @@ class ArtifactType(enum.Enum):
     """
     CLEANED = 'cleaned'
     MORPHOLOGICAL_CONLLU = 'morphological_conllu'
-    FULL_CONLLU = 'full_conllu'
+    POS_CONLLU = 'pos_conllu'

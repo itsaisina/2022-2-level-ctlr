@@ -3,6 +3,7 @@ Generator of stubs for existing lab implementation
 """
 
 import ast
+import re
 from _ast import alias, stmt
 from pathlib import Path
 from typing import Optional
@@ -33,7 +34,7 @@ def remove_implementation_from_function(original_declaration: ast.stmt,
         raise NoDocStringForAMethodError(f'You have to provide docstring for a method '
                                          f'{parent.name + "." if parent is not None else ""}'
                                          f'{original_declaration.name}')
-    original_declaration.body[1:] = [ast.Pass()]
+    original_declaration.body[1:] = []
 
 
 def cleanup_code(source_code_path: Path) -> str:
@@ -68,6 +69,15 @@ def cleanup_code(source_code_path: Path) -> str:
                                                       for name in names_to_import]))
                 continue
 
+        if isinstance(decl, ast.ClassDef):
+            if 'Note: remove' in ast.get_docstring(decl):  # type: ignore
+                decl = []  # type: ignore
+            else:
+                for ind, class_decl in enumerate(decl.body):
+                    if isinstance(class_decl, ast.FunctionDef) \
+                            and 'Note: remove' in ast.get_docstring(class_decl):  # type: ignore
+                        decl.body[ind] = []  # type: ignore
+
         if isinstance(decl, ast.ClassDef) and decl.bases:
             name = decl.bases[0]
             if decl.bases and isinstance(name, ast.Name) and \
@@ -76,7 +86,10 @@ def cleanup_code(source_code_path: Path) -> str:
                 decl = []  # type: ignore
 
         if isinstance(decl, ast.ClassDef):
-            for class_decl in decl.body:
+            for ind, class_decl in enumerate(decl.body):
+                if isinstance(class_decl, ast.FunctionDef) and \
+                        re.match(r'_[^_]', class_decl.name):
+                    decl.body[ind] = []  # type: ignore
                 remove_implementation_from_function(class_decl, parent=decl)
         remove_implementation_from_function(decl)
         new_decl.append(decl)

@@ -34,15 +34,22 @@ def split_by_sentence(text: str) -> list[str]:
                  and len(sentence) > 10]
     return sentences
 
+
 # pylint: disable=too-few-public-methods
 class SentenceProtocol(Protocol):
     """
     Protocol definition for sentences to make dependency inversion from direct
     import from lab 6 implementation of ConlluSentence
     """
+
     def get_cleaned_sentence(self) -> str:
         """
         All tokens should be normalized and joined with a space
+        """
+
+    def get_tokens(self) -> list:
+        """
+        All tokens should be ConlluToken instance
         """
 
 
@@ -144,7 +151,7 @@ class Article:
         kind: variant of a file -- ArtifactType
         """
 
-        conllu = kind in (ArtifactType.FULL_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
+        conllu = kind in (ArtifactType.POS_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
 
         extension = '.conllu' if conllu else '.txt'
         article_name = f"{self.article_id}_{kind.value}{extension}"

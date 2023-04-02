@@ -1,45 +1,12 @@
 """
 Parsers for CONLL-U
 """
+import json
 import re
+from pathlib import Path
+from typing import Union
 
-try:
-    from lab_6_pipeline.conllu import ConlluToken  # type: ignore
-    from lab_6_pipeline.conllu import MorphologicalTokenDTO  # type: ignore
-    from lab_6_pipeline.conllu import SyntacticTokenDTO  # type: ignore
-except ImportError:
-    ConlluToken = None
-    MorphologicalTokenDTO = None
-    SyntacticTokenDTO = None
-    print('Unable to import: lab_6_pipeline.conllu.ConlluToken,'
-          'MorphologicalTokenDTO,SyntacticTokenDTO')
-
-
-def parse_conllu_token(token_line: str) -> ConlluToken:
-    """
-    Parses the raw text in the CONLLU format into the CONLL-U token abstraction
-
-    Example:
-        '2\tпроизошло\tпроисходить\tVERB\t_\tGender=Neut|Number=Sing|Tense=Past\t0\troot\t_\t_'
-    """
-
-    (position, token_text, lemma, pos, _,
-     morphological_tags, parent_position,
-     dependency, _, misc) = token_line.split('\t')
-
-    conllu_token = ConlluToken(text=token_text)
-    morphological_parameters = MorphologicalTokenDTO(lemma=lemma,
-                                                     pos=pos,
-                                                     tags=morphological_tags,
-                                                     misc=misc)
-    syntactic_parameters = SyntacticTokenDTO(position=position,
-                                             dependency=dependency,
-                                             parent_position=parent_position)
-
-    conllu_token.set_morphological_parameters(morphological_parameters)
-    conllu_token.set_syntactic_parameters(syntactic_parameters)
-
-    return conllu_token
+from pymorphy2.tagset import OpencorporaTag
 
 
 def extract_sentences_from_raw_conllu(conllu_article_text: str) -> list[dict]:
@@ -69,3 +36,37 @@ def extract_sentences_from_raw_conllu(conllu_article_text: str) -> list[dict]:
         sentence['tokens'] = [token for token in sentence['tokens'] if token]
         sentences.append(sentence)
     return sentences
+
+
+class TagConverter:
+    """
+    Tag Converter Abstraction
+    """
+    _tag_mapping: dict[str, dict[str, str]]
+
+    def __init__(self, tag_mapping_path: Path):
+        """
+        Initializes Converter
+        """
+        with open(tag_mapping_path, 'r', encoding='utf-8') as mapping_file:
+            self._tag_mapping = json.load(mapping_file)
+
+        self.pos = 'POS'
+        self.case = 'Case'
+        self.number = 'Number'
+        self.gender = 'Gender'
+        self.animacy = 'Animacy'
+        self.tense = 'Tense'
+        self.tags = 'TAGS'
+
+    def convert_morphological_tags(self, tags: Union[str, OpencorporaTag]) -> str:
+        """
+        Converts the tags into the UD format
+        """
+        raise NotImplementedError
+
+    def convert_pos(self, tags: Union[str, OpencorporaTag]) -> str:
+        """
+        Extracts and converts POS from the tags into the UD format
+        """
+        raise NotImplementedError

@@ -79,6 +79,20 @@ jobs:
         run: |
           bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
 
+  pymarkdownlnt-checks:
+    name: Pymarkdownlnt checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    needs: [ install-dependencies ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup FIPL environment
+        uses: fipl-hse/setup-env-action@v0.4
+      - name: Pymarkdownlnt check
+        run: |
+          bash config/stage_1_style_tests/_stage_run_pymarkdownlnt.sh
+
   mypy-checks:
     name: Mypy checks
     runs-on: ubuntu-latest
