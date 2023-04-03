@@ -1,6 +1,7 @@
 """
 Crawler implementation
 """
+import re
 import os
 from typing import Pattern, Union
 from pathlib import Path
@@ -20,6 +21,10 @@ class NumberOfArticlesOutOfRangeError(Exception):
     pass
 
 
+class IncorrectNumberOfArticlesError(Exception):
+    pass
+
+
 class IncorrectHeadersError(Exception):
     pass
 
@@ -36,10 +41,6 @@ class IncorrectVerifyError(Exception):
     pass
 
 
-class IncorrectHeadlessError(Exception):
-    pass
-
-
 class Config:
     """
     Unpacks and validates configurations
@@ -50,78 +51,109 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self.config_data = self._extract_config_content()
         self._validate_config_content()
+        self.config_dto = self._extract_config_content()
+        self._seed_urls = self.get_seed_urls()
+        self._num_articles = self.get_num_articles()
+        self._headers = self.get_headers()
+        self._encoding = self.get_encoding()
+        self._timeout = self.get_timeout()
+        self._should_verify_certificate = self.get_verify_certificate()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        with open(self.path_to_config) as file:
-            config_data = json.load(file)
-        return ConfigDTO(**config_data)
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        if not self.seed_urls:
-            raise IncorrectSeedURLError("Seed urls must be provided")
-        if not isinstance(self.total_articles_to_find_and_parse, int) or self.total_articles_to_find_and_parse <= 0:
-            raise NumberOfArticlesOutOfRangeError("Total articles to find and parse must be a positive integer")
-        if not isinstance(self.headers, dict):
-            raise IncorrectHeadersError("Headers must be a dictionary")
-        if not isinstance(self.encoding, str):
-            raise IncorrectEncodingError("Encoding must be a string")
-        if not isinstance(self.timeout, int) or self.timeout <= 0:
-            raise IncorrectTimeoutError("Timeout must be a positive integer")
-        if not isinstance(self.verify_certificate, bool):
-            raise IncorrectVerifyError("Verify certificate must be a boolean")
-        if not isinstance(self.headless_mode, bool):
-            raise IncorrectHeadlessError("Headless mode must be a boolean")
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+
+        seed_urls = config.get('seed_urls')
+        if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
+            raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
+
+        for seed_url in seed_urls:
+            if not re.match(r'^https?://w?w?w?.', seed_url):
+                raise IncorrectSeedURLError("Invalid seed URL in configuration file")
+
+        total_articles_to_find_and_parse = config.get('total_articles_to_find_and_parse')
+        if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse <= 1:
+            raise IncorrectNumberOfArticlesError(
+                "Invalid value for total_articles_to_find_and_parse in configuration file")
+
+        if total_articles_to_find_and_parse >= 150:
+            raise NumberOfArticlesOutOfRangeError(
+                "Invalid value for total_articles_to_find_and_parse in configuration file")
+
+        headers = config.get('headers', {})
+        if not isinstance(headers, dict):
+            raise IncorrectHeadersError("Invalid value for headers in configuration file")
+
+        encoding = config.get('encoding', 'utf-8')
+        if not isinstance(encoding, str):
+            raise IncorrectEncodingError("Invalid value for encoding in configuration file")
+
+        timeout = config.get('timeout', 10)
+        if not isinstance(timeout, int) or timeout <= 1 or timeout >= 60:
+            raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
+
+        should_verify_certificate = config.get('should_verify_certificate', True)
+        if not isinstance(should_verify_certificate, bool):
+            raise IncorrectVerifyError("Invalid value for should_verify_certificate in configuration file")
+
+        headless_mode = config.get('headless_mode', True)
+        if not isinstance(headless_mode, bool):
+            raise IncorrectVerifyError("Invalid value for headless_mode in configuration file")
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        return self.config_data.seed_urls
+        return self.config_dto.seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        return self.config_data.total_articles_to_find_and_parse
+        return self.config_dto.total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        return self.config_data.headers
+        return self.config_dto.headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        return self.config_data.encoding
+        return self.config_dto.encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        return self.config_data.timeout
+        return self.config_dto.timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self.config_data.verify_certificate
+        return self.config_dto.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        return self.config_data.headless_mode
+        return self.config_dto.headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -210,14 +242,17 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find('div', class_='page-main__publish-data').find('a', class_='page-main__publish-author global-link')
+        author_elem = article_soup.find('div', class_='page-main__publish-data').find('a',
+                                                                                      class_='page-main__publish-author global-link')
         authors = [author_elem.text.strip()] if author_elem else ["NOT FOUND"]
 
-        date_elem = article_soup.find('div', class_='page-main__publish-data').find('a', class_='page-main__publish-date')
+        date_elem = article_soup.find('div', class_='page-main__publish-data').find('a',
+                                                                                    class_='page-main__publish-date')
         date_str = date_elem.get_text(strip=True) if date_elem else None
         date = self.unify_date_format(date_str)
 
-        category_elem = article_soup.find('div', class_='panel-group').find('a', class_='panel-group__title global-link')
+        category_elem = article_soup.find('div', class_='panel-group').find('a',
+                                                                            class_='panel-group__title global-link')
         category = category_elem.get_text(strip=True) if category_elem else None
 
         title_elem = article_soup.find('div', class_='page-main').find('h1', class_='page-main__head')
@@ -252,7 +287,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    assets_path = Path(base_path)
+    assets_path = Path(base_path) / 'articles'
     if os.path.exists(assets_path):
         os.remove(assets_path)
     os.makedirs(assets_path)
