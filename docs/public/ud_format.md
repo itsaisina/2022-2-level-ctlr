@@ -1,35 +1,149 @@
-# Working with the UD text description format: CONLL-U
+# Working with UD format and `CONLL-U`
 
-## Structure
+During the implementation of Lab 6, you need to convert Mystem and PyMorphy tags to the UD format 
+and save in a `conllu` file. Here you will learn what Mystem and PyMorphy tags look like, 
+how to convert them to the UD format and what should `conllu` file structure look like.
 
-1. One word per line with the following structure:
-    1. **ID**: Word index, integer starting at 1 for each new sentence; may be a range for multiword tokens; may be a decimal number for empty nodes (decimal numbers can be lower than 1 but must be greater than 0).
+> **NOTE**: UD (Universal Dependencies) is a framework for consistent annotation of grammar 
+> (parts of speech, morphological features, and syntactic dependencies) across different human languages.
+> All this annotation is usually stored in a format called `CONLL-U`, that is a vertical, table-like format.
 
-    2. **FORM**: Word form or punctuation symbol.
-    
-    3. **LEMMA**: Lemma or stem of word form.
-    
-    4. **UPOS**: Universal part-of-speech tag.
-    
-    5. **XPOS**: Language-specific part-of-speech tag; underscore if not available.
-    
-    6. **FEATS**: List of morphological features from the universal feature inventory or from a defined language-specific extension; underscore if not available.
-       * As per [this format](https://universaldependencies.org/u/feat/index.html)
-       * Structured as `FeatureName=Value|FeatureName=Value|FeatureName=Value...` 
-         * where `FeatureName` is a name of the morphological feature of the token (e.g., `Number`) and `Value` is the actual value of the feature (e.g., `Sing` - short for singular)
-    
-    7. **HEAD**: Head of the current word, which is either a value of ID or zero (0).
-    
-    8. **DEPREL**: Universal dependency relation to the HEAD (root if HEAD = 0) or a defined language-specific subtype of one.
-       * As per [this format](https://universaldependencies.org/u/dep).
-    
-    9. **DEPS**: Enhanced dependency graph in the form of a list of head-deprel pairs.
-    
-    10. **MISC**: Any other annotation.
-2. Fields cannot be empty. If no value for a field, the `_` is used.
-3. Comments are denoted using `#`. Comments usually consist of the sentences, see the example below.
-4. New sentences start with the token ID being `1`.
-5. Example:
+* [Mystem and PyMorphy to UD](#mystem-pymorphy-to-ud)
+    * [UD](#ud)
+    * [Mystem](#mystem)
+    * [PyMorphy](#pymorphy)
+* [`CONLL-U` structure](#conllu-structure)
+
+## <a name="mystem-pymorphy-to-ud"></a>Mystem and PyMorphy to UD
+
+The number of available morphological features in PyMorphy, Mystem and UD is big. It would require 
+a lot of work to make a perfect mapping of the features from one system to another. 
+This section describes how to parse the output from PyMorphy and Mystem and convert a **part of 
+the available morphological features** to the UD format.
+
+You need to convert the following features:
+* POS (Part of speech) 
+* Case 
+* Number 
+* Gender 
+* Animacy 
+* Tense
+
+As different parts of speech have different tags (for example: **verbs** have **tense** while **nouns** do not), 
+it is important to make the parsing per part of speech.
+
+To convert them from one system to another, it is necessary to understand how each system is structured.
+
+### <a name="ud"></a>UD
+
+The UD format for storing morphological information is structured as follows: 
+`FeatureName=Value|FeatureName=Value|FeatureName=Value...`
+where `FeatureName` is a name of the morphological feature of the token (for example, `Number`) 
+and `Value` is the actual value of the feature (for example, `Sing` - short for singular).
+
+For example:
+* `Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing`
+  * `Animacy=Inan` - inanimate
+  * `Case=Acc` - accusative case
+  * `Degree=Pos` - degree of comparison: positive/first degree
+  * `Gender=Masc` - masculine gender
+  * `Number=Sing` - singular number
+
+> **NOTE**: The list of all tags used in the UD system is available on 
+> the [dedicated page](https://universaldependencies.org/u/feat/index.html).
+
+### <a name="mystem"></a>Mystem
+
+The `pymystem3` library is a wrapper around Mystem for Python. It provides the morphological analysis 
+for the language tokens. 
+
+> **NOTE**: The list of all tags used in Mystem is available on 
+> the [dedicated page](https://yandex.ru/dev/mystem/doc/grammemes-values.html).
+
+It is structured as follows: `POS,FeatureValue?,FeatureValue?...=(FeatureValue?,FeatureValue?...|FeatureValue?,FeatureValue?...|)`
+where: 
+* `POS` is a part of speech 
+* `FeatureValue` is the value of a morphological feature 
+* `?` means that the value might not be present
+* `|` means that there are several possible sets of morphological features for the token
+
+The specific structure varies based on the part of speech, see examples below:
+* Noun: `S,муж,од=(вин,ед|род,ед)` OR `S,жен,од=им,ед` OR `S,сокр=(пр,мн|пр,ед|вин,мн|вин,ед|дат,мн|дат,ед)`
+* Adjective: `A=(вин,ед,полн,муж,од|род,ед,полн,муж|род,ед,полн,сред)` OR `A=(вин,мн,полн,неод|им,мн,полн)`
+* Verb: `V,нп=прош,мн,изъяв,сов` OR `V,пе=(прош,ед,прич,кр,муж,сов,страд|непрош,мн,изъяв,3-л,сов)`
+* Numeral-Adjective: `ANUM=(пр,ед,жен|дат,ед,жен|род,ед,жен|твор,ед,жен|)`
+* Pronoun-Adjective: `APRO=(пр,мн|дат,мн|род,мн|твор,мн|им,мн|им,ед,жен|вин,ед,муж,од|род,ед,муж|род)`
+* Numeral: `NUM=(им|вин,неод)`
+* Pronoun: `SPRO,ед,3-л,жен=им` OR `SPRO,ед,3-л,жен=(дат|твор)`
+* Particle, preposition, interjection, conjunction, part of a compound word, adverb, pronominal adverb: 
+`PART=`, `PR=`, `INTJ=`, `CONJ=`, `COM=`, `ADV=`, `ADVPRO=` respectively
+
+>**HINT**: For the mark 8 (when you have to fill the FEATS field information in the resulting .conllu file) 
+> there is no need to process `PART`, `PR`, `INTJ`, `CONJ`, `COM`, `ADVPRO`, `ADV` as they only have POS.
+
+As it is seen from the examples above, the number of features can be different even for the same part of speech: 
+compare `S,жен,од=им,ед` and `S,сокр=(пр,мн|пр,ед|вин,мн|вин,ед|дат,мн|дат,ед)`.
+This fact should be kept in mind while parsing the morphological features.
+
+> **NB**: For the sake of simplicity, only the first possible set of features is considered.
+> For example, in this set of features`(вин,ед|род,ед)` you should consider this one `вин,ед`
+
+> **HINT**: As the pymystem3 returns these morphological features as a string, there is nothing left but 
+> to parse it by delimiters (`,=|()`) or find more elegant way.
+
+Let's parse `S,муж,од=(вин,ед|род,ед)` to the UD format. 
+As the morphological features in the UD format are structured as following: 
+* `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
+
+the resulting string for our example would be:
+* `Animacy=Anim|Case=Acc|Gender=Masc|Number=Sing`
+
+> **NB**: The complete mapping of features from Mystem to the UD format can be found in 
+> the [`ud_mapping.md`](ud_mapping.md)
+
+### <a name="pymorphy"></a>PyMorphy
+
+PyMorphy uses the tags from OpenCorpora. The list of all tags is available on 
+the [OpenCorpora Website](http://opencorpora.org/dict.php?act=gram&order=priority).
+
+As the `pymorphy2` returns these morphological features as an instance of the `OpencorporaTag` class, 
+it is possible to access its attributes to extract the information.
+
+Available attributes for `OpencorporaTag` are:
+* `POS`
+* `animacy`
+* `aspect`
+* `case`
+* `gender`
+* `involvement`
+* `mood`
+* `number`
+* `person`
+* `tense`
+* `transitivity`
+* `voice`
+
+They can be accessed as, for example, `tags.animacy` where `tags` is an instance of the `OpencorporaTag` class.
+
+Let's parse `OpencorporaTag('NOUN,anim,masc sing,nomn')` to the UD format. 
+As the morphological features in the UD format are structured as following: 
+* `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
+
+the resulting string for our example would be:
+* `Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing`
+
+> **NB**: The complete mapping of features from PyMorphy to the UD format can be found in 
+> the [`ud_mapping.md`](ud_mapping.md)
+
+## <a name="conllu-structure"></a>`CONLL-U` structure
+
+After processing your articles and converting Mystem and PyMorphy tags to the UD format, 
+you should save your annotated data in a `conllu` file.
+
+Let's look at an example of a `conllu` file that should work for you. 
+It is a subset of a file from [this repository](https://github.com/UniversalDependencies/UD_Russian-SynTagRus). 
+File with example text can be found [here](lab_6_pipeline/data/ud_test.conllu).
+
    ```
    # sent_id = 2003Armeniya.xml_1
    # text = В советский период времени число ИТ- специалистов в Армении составляло около десяти тысяч.
@@ -49,159 +163,53 @@
    14	тысяч	тысяча	NOUN	_	Animacy=Inan|Case=Gen|Gender=Fem|Number=Plur	11	nsubj	11:nsubj	SpaceAfter=No
    15	.	.	PUNCT	_	_	11	punct	11:punct	_
    ```
-6. Line explanation:
-   * Line: `2	советский	советский	ADJ	_	Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	3	amod	3:amod	_`
-     1. `2` - ID
-     2. `советский` - text of the token
-     3. `советский` - lemma of the token
-     4. `ADJ` - POS
-     5. `_` - language specific POS; none in this case
-     6. `Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing` - morphological features of the token as per [tags](https://universaldependencies.org/u/feat/index.html)
-        1. `Animacy=Inan` - inanimate
-        2. `Case=Acc` - accusative case
-        3. `Degree=Pos` - degree of comparison: positive/first degree
-        4. `Gender=Masc` - masculine gender
-        5. `Number=Sing` - singular number
-     7. `3` - the ID of the HEAD for the current token. HEAD is `период` in this case
-     8. `amod` - relation to the HEAD token. `amod` - adjectival modifier as per [tags](https://universaldependencies.org/u/dep/amod.html)
-     9. `3:amod` - pair of HEAD:RELATION for the current token
-     10. `_` - any other annotation; none in this case
 
-**NB**: file with example text can be found in [here](data/ud_test.conllu). It is a subset of a file from [this repository](https://github.com/UniversalDependencies/UD_Russian-SynTagRus).
+It has the following structure, where each "column" is responsible for:
+1. **ID**: Word index, integer starting at 1 for each new word in the sentence.
+2. **FORM**: Word form or punctuation symbol.
+3. **LEMMA**: Lemma or stem of word form.
+4. **UPOS**: Universal POS tag.
+5. **XPOS**: Language-specific POS tag. 
+   1. **NB**: mark as `_` as we do not use it.
+6. **FEATS**: List of morphological features structured as 
+`FeatureName=Value|FeatureName=Value|FeatureName=Value...` as per UD format; mark as `_` if not available.
+7. **HEAD**: Head of the current word. 
+   1. **NB**: mark as `0` as we do not use it.
+8. **DEPREL**: Universal dependency relation to the HEAD. 
+   1. **NB**: mark as `root` as we do not use it.
+9. **DEPS**: Enhanced dependency graph in the form of a list of head-deprel pairs. 
+   1. **NB**: mark as `_` as we do not use it.
+10. **MISC**: Any other annotation. 
+    1. **NB**: mark as `_` as we do not use it.
 
-## Parsing morphological information from PyMorphy & Mystem and converting it into the UD format
+Thus, during the implementation of the Lab 6, you will work with the following "columns": 
+**ID**, **FORM**, **LEMMA**, **UPOS**, **FEATS**. 
+Fill in the rest of the "columns" as indicated in the structure above.
 
-The number of available morphological features in PyMorphy, Mystem and UD is big. It would require a lot of work to make a perfect (i.e., 1-to-1) mapping of the features from one system to another. This section describes how to parse the output from PyMorphy and Mystem and convert **_part of the available morphological features_** to the UD format.
+In addition, you must take into account that:
+* New sentences start with the token ID being `1`;
+* Fields cannot be empty. If no value for a field, the `_` is used;
+* Comments usually consist of the sentences and are denoted using `#`.
 
-The features selected for conversion:
+Let's explain the second line 
+`2 советский	советский ADJ _	Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing 3 amod 3:amod _`:
+* `2` - ID
+* `советский` - text of the token 
+* `советский` - lemma of the token 
+* `ADJ` - POS
+* `_` - language specific POS; none in this case 
+* `Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing` - morphological features of the token 
+as per [tags](https://universaldependencies.org/u/feat/index.html):
+  * `Animacy=Inan` - inanimate 
+  * `Case=Acc` - accusative case 
+  * `Degree=Pos` - degree of comparison: positive/first degree 
+  * `Gender=Masc` - masculine gender 
+  * `Number=Sing` - singular number
+* `3` - the ID of the HEAD for the current token. HEAD is `период` in this case
+* `amod` - relation to the HEAD token. `amod` - adjectival modifier 
+as per [tags](https://universaldependencies.org/u/dep/amod.html)
+* `3:amod` - pair of HEAD:RELATION for the current token
+* `_` - any other annotation; none in this case
 
-* Part of speech
-* Case
-* Number
-* Gender
-* Animacy
-* Tense
-
-The complete mapping of features from PyMorphy and Mystem to the UD format can be found in the [`tags_mapping.json`](data/tags_mapping.json).
-
-To convert from one system to another, it is necessary to understand how each system is structured. 
-
-### Universal Dependency
-
-The UD formatting for morphological tags was partly described in the beginning of the document. 
-
-It is structured as follows:
-
-* `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
-
-Where `FeatureName` is a name of the morphological feature of the token (e.g., `Number`) and `Value` is the actual value of the feature (e.g., `Sing` - short for singular).
-
-Example:
-* `Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing`
-  1. `Animacy=Inan` - inanimate
-  2. `Case=Acc` - accusative case
-  3. `Degree=Pos` - degree of comparison: positive/first degree
-  4. `Gender=Masc` - masculine gender
-  5. `Number=Sing` - singular number
-
-The list of all tags used in the UD system is available on the [dedicated page](https://universaldependencies.org/u/feat/index.html).
-
-### Mystem
-The list of all tags used in Mystem is available on the [dedicated documentation page](https://yandex.ru/dev/mystem/doc/grammemes-values.html).
-
-The `pymystem3` library is a wrapper around Mystem for Python. It provides the morphological analysis for the language tokens in the following format:
-
-* `POS,FeatureValue?,FeatureValue?...=(FeatureValue?,FeatureValue?...|FeatureValue?,FeatureValue?...|)`
-
-Where `POS` is a part of speech, `FeatureValue` - the value of a morphological feature, `?` means that the value might not be present, 
-`|` means that there are several possible sets of morphological features for the token.
-
-The specific structure varies based on the part of speech, see examples below.
-
-Examples:
-* Noun: `S,муж,од=(вин,ед|род,ед)`, `S,жен,од=им,ед`, `S,сокр=(пр,мн|пр,ед|вин,мн|вин,ед|дат,мн|дат,ед)`
-  * `S` - Noun
-  * `муж` - Masculine gender
-  * `од` - animate
-  * `вин,ед|род,ед` - `вин,ед` OR `род,ед`
-    * `вин,ед` - accusative case, singular number
-    * `род,ед` - genitive case, singular number
-* Adjective: `A=(вин,ед,полн,муж,од|род,ед,полн,муж|род,ед,полн,сред)`, `A=(вин,мн,полн,неод|им,мн,полн)`
-* Verb: `V,нп=прош,мн,изъяв,сов`, `V,пе=(прош,ед,прич,кр,муж,сов,страд|непрош,мн,изъяв,3-л,сов)`
-* Numeral-Adjective: `ANUM=(пр,ед,жен|дат,ед,жен|род,ед,жен|твор,ед,жен|)`
-* Pronoun-Adjective: `APRO=(пр,мн|дат,мн|род,мн|твор,мн|им,мн|им,ед,жен|вин,ед,муж,од|род,ед,муж|род)`
-* Numeral: `NUM=(им|вин,неод)`
-* Pronoun: `SPRO,ед,3-л,жен=им`, `SPRO,ед,3-л,жен=(дат|твор)`
-* Particle, preposition, interjection, conjunction, part of a compound word, adverb, pronominal adverb: `PART=, PR=, INTJ=, CONJ=, COM=, ADV=, ADVPRO=` respectively
-
-As the `pymystem3` returns these morphological features as a string, there is nothing left but to parse it by delimiters (`,=|()`) <sub><sup>or find more elegant way</sup></sub>.
-
-Additionally, as it is seen from the examples above, the number of features can be different even for the same part of speech: 
-compare `S,жен,од=им,ед` and `S,сокр=(пр,мн|пр,ед|вин,мн|вин,ед|дат,мн|дат,ед)`. This fact should be kept in mind while parsing the morphological features.
-
-Parsing of `S,муж,од=(вин,ед|род,ед)` to the UD format:
-
-* `S` - `NOUN`
-* `муж` - `Masc`
-* `од` - `Anim`
-* `вин` - `Acc`
-* `ед` - `Sing`
-* `род` - `Gen`
-
-**NB**: The complete mapping of features from PyMorphy and Mystem to the UD format can be found in the [`tags_mapping.json`](data/tags_mapping.json).
-
-For the sake of simplicity, only the first possible set of features (i.e., `вин,ед`) is considered.
-
-As per the UD format, the morphological features are structured as following:
-
-* `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
-
-In this case, the resulting string would be the following:
-
-* `Animacy=Anim|Case=Acc|Gender=Masc|Number=Sing`
-
-**NB**: the names of the features in the UD format can be found on the [dedicated page](https://universaldependencies.org/u/feat/index.html).
-
-### PyMorphy
-PyMorphy uses the tags from OpenCorpora. The list of all tags is available on the [OpenCorpora Website](http://opencorpora.org/dict.php?act=gram&order=priority).
-
-As the `pymorphy2` returns these morphological features as an instance of the `OpencorporaTag` class, it is possible to access its attributes to extract the information.
-
-Available attributes for `OpencorporaTag` are:
-* `POS`
-* `animacy`
-* `aspect`
-* `case`
-* `gender`
-* `involvement`
-* `mood`
-* `number`
-* `person`
-* `tense`
-* `transitivity`
-* `voice`
-
-They can be accessed as, for example, `tags.animacy` where `tags` is an instance of `OpencorporaTag`.
-
-Parsing of `OpencorporaTag('NOUN,anim,masc sing,nomn')` to the UD format:
-
-* `NOUN` - `NOUN`
-* `masc` - `Masc`
-* `anim` - `Anim`
-* `nomn` - `Nom`
-* `sing` - `Sing`
-
-**NB**: The complete mapping of features from PyMorphy and Mystem to the UD format can be found in the [`tags_mapping.json`](data/tags_mapping.json).
-
-As different parts of speech have different tags (e.g.: _**verbs**_ have _**tense**_ while _**nouns**_ do not), it is important to make the parsing 
-per part of speech.
-
-As per the UD format, the morphological features are structured as following:
-
-* `FeatureName=Value|FeatureName=Value|FeatureName=Value...`
-
-In this case, the above `OpencorporaTag` would convert to the following in the UD format:
-
-* `Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing`
-
-**NB**: the names of the features in the UD format can be found on the [dedicated page](https://universaldependencies.org/u/feat/index.html).
+> **NOTE**: More information about the structure of the `CONLL-U` format is available on 
+> the [dedicated page](https://universaldependencies.org/format.html).

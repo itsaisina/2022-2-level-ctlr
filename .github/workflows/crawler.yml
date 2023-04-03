@@ -67,6 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     needs: [ install-dependencies ]
+    env:
+      PR_NAME: ${{ github.event.pull_request.title }}
+      PR_AUTHOR: ${{ github.actor }}
 
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +77,21 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Code Style
         run: |
-          bash config/stage_1_style_tests/_stage_run_lint.sh
+          bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
+
+  pymarkdownlnt-checks:
+    name: Pymarkdownlnt checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    needs: [ install-dependencies ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup FIPL environment
+        uses: fipl-hse/setup-env-action@v0.4
+      - name: Pymarkdownlnt check
+        run: |
+          bash config/stage_1_style_tests/_stage_run_pymarkdownlnt.sh
 
   mypy-checks:
     name: Mypy checks
@@ -457,41 +474,6 @@ jobs:
         run: |
           bash config/stage_3_pipeline_tests/s3_6_student_conllu_preprocess.sh
 
-  running-syntax-pipeline:
-    name: Running SyntaxAnalysisPipeline
-    needs: [
-      checking-raw-dataset-before-running-pipeline,
-      checking-student-processing-works-for-admin-dataset,
-      checking-student-processing-works-for-student-dataset,
-      checking-corpus-manager-creates-instances-correctly,
-      checking-conllu-token-works-correctly
-    ]
-    env:
-      PR_AUTHOR: ${{ github.actor }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
-      - name: Download previously collected dataset
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-        with:
-          name: processed-dataset
-      - name: Run SyntaxPipeline
-        run: |
-          bash config/stage_4_syntax_pipeline_tests/_stage_check_syntax_pipeline.sh "$PR_AUTHOR"
-      - name: Archive processed dataset
-        continue-on-error: true
-        uses: actions/upload-artifact@v3
-        with:
-          name: processed-dataset
-          path: |
-            tmp/articles
-          retention-days: 5
-
   running-pos-pipeline-tests:
     name: POSFrequencyPipeline tests
     needs: [
@@ -500,7 +482,6 @@ jobs:
       checking-student-processing-works-for-student-dataset,
       checking-corpus-manager-creates-instances-correctly,
       checking-conllu-token-works-correctly,
-      running-syntax-pipeline
     ]
     env:
       PR_AUTHOR: ${{ github.actor }}

@@ -1,24 +1,18 @@
 ## Dataset requirements
 
-1. Structure:
+For effective analysis of the collected articles, it is necessary to organize the data in a consistent way.
+The description of the structure and each of the elements of the dataset is provided below.
+
+### Structure:
 ```
 +-- 2022-2-level-ctlr
     +-- tmp
         +-- articles
-        +-- raw_dataset.zip
             +-- articles
-                +-- 1_raw.txt <- the paper with the ID as the name
+                +-- 1_raw.txt <- the raw text of the article with the ID as the name
                 +-- 1_cleaned.txt <- lowercased text with no punctuation
                 +-- 1_morphological_conllu.conllu <- UD text format with morphological tags 
-                +-- 1_meta.json <- the paper meta-information
-                    {
-                        "id": "1",
-                        "title": "Власти продлили «дачную амнистию». Разбираемся в нововведениях с NN.RU",
-                        "date": "2021-01-26 07:30:00",
-                        "url": "https://www.nn.ru/text/realty/2021/01/26/69724161/",
-                        "topics": ["недвижимость"], <- Optional. 4 module -> skip-topics=True
-                        "author": "Егор Герасимов" <- Optional. .skips -> skip-author=True
-                    }
+                +-- 1_meta.json <- the meta-information of the article
                 +-- 2_raw.txt
                 +-- 2_cleaned.txt
                 +-- 2_morphological_conllu.conllu
@@ -29,13 +23,106 @@
                 +-- 100_morphological_conllu.conllu
                 +-- 100_meta.json
 ```
-1. Volume: not less than 100 texts
-1. Tagged: each token has inplace tag with morphological information: 
-   1. Full description of working with UD format can be found [here](ud_format.md).
-1. Recoverability of information (meta-information):
-   1. Article id
-   1. Article title
-   1. Article date
-   1. Article URL 
-   1. Article topics
-   1. Article author
+
+### Raw texts
+
+Raw articles texts are stored in `X_raw.txt` files where `X` corresponds to the index of the article. 
+The text is not preprocessed in any way. 
+
+Example:
+
+```
+Жители Китая, у которых дома живут три кошки, сняли на видео развлечение, которое придумали питомицы. 
+При этом главным реквизитом игры стала, как ни странно, рисоварка. Хотя на первый взгляд сложно представить, 
+что же могло заинтересовать животных в обычном кухонном агрегате. Оказывается, пузырьки, которые то и дело 
+возникают на крышке рисоварки. Эти пузырьки крайне занимательно прихлопывать лапами.
+```
+
+### Processed texts
+
+Ideally, the dataset consists of three processed texts examples: cleaned text, text with morphology annotation and
+text with syntactic annotation.
+
+#### Cleaned text
+
+Cleaned texts are stored in `X_cleaned.txt` files where `X` corresponds to the index of the article. 
+
+Cleaned text is lowercase and does not include any punctuation. 
+Word forms are the same as in the raw text.
+
+Example:
+
+```
+жители китая у которых дома живут три кошки сняли на видео развлечение которое придумали питомицы 
+при этом главным реквизитом игры стала как ни странно рисоварка хотя на первый взгляд сложно представить 
+что же могло заинтересовать животных в обычном кухонном агрегате оказывается пузырьки которые то и дело 
+возникают на крышке рисоварки эти пузырьки крайне занимательно прихлопывать лапами
+```
+
+#### Morphological annotation
+
+Texts with morphological annotation are stored in `X_morphological_conllu.conllu` files where `X` corresponds to the index of the article. 
+
+The files contain the following information about the tags: `ID`, `FORM`, `LEMMA`, `UPOS`, `XPOS`, `FEATS`.
+
+Read more about the structure of such files in [UD format description](ud_format.md).
+
+Example for the first sentence of the sample article:
+
+```
+# sent_id = 0
+# text = Жители Китая, у которых дома живут три кошки, сняли на видео развлечение, которое придумали питомицы.
+1	Жители	житель	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Plur	0	root	_	_
+2	Китая	китай	NOUN	_	Animacy=Inan|Case=Gen|Gender=Masc|Number=Sing	0	root	_	_
+3	у	у	ADP	_	_	0	root	_	_
+4	которых	который	ADJ	_	Case=Ins|Number=Plur	0	root	_	_
+5	дома	дома	ADV	_	_	0	root	_	_
+6	живут	жить	VERB	_	Number=Plur	0	root	_	_
+7	три	три	NUM	_	Case=Nom	0	root	_	_
+8	кошки	кошка	NOUN	_	Animacy=Anim|Case=Gen|Gender=Fem|Number=Sing	0	root	_	_
+9	сняли	снимать	VERB	_	Number=Plur|Tense=Past	0	root	_	_
+10	на	на	ADP	_	_	0	root	_	_
+11	видео	видео	NOUN	_	Animacy=Inan|Case=Ins|Gender=Neut|Number=Plur	0	root	_	_
+12	развлечение	развлечение	NOUN	_	Animacy=Inan|Case=Acc|Gender=Neut|Number=Sing	0	root	_	_
+13	которое	который	ADJ	_	Case=Acc|Gender=Neut|Number=Sing	0	root	_	_
+14	придумали	придумывать	VERB	_	Number=Plur|Tense=Past	0	root	_	_
+15	питомицы	питомица	NOUN	_	Animacy=Anim|Case=Gen|Gender=Fem|Number=Sing	0	root	_	_
+16	.	.	PUNCT	_	_	15	punct	_	_
+```
+
+
+### Meta information
+
+Meta information is stored in files with `X_meta.json` names where `X` corresponds to the index of the article. 
+
+
+It is also required to store meta-information. It includes:
+   1. Article id (a positive integer, it must match the id of the file)
+   1. Article title (a string)
+   1. Article date (a string)
+   1. Article URL  (a string)
+   1. Article topics (a list of strings)
+   1. Article author (a list of strings)
+
+Example:
+
+```
+{
+    "id": 2,
+    "url": "https://www.nn.ru/text/style/2023/03/11/72125285/",
+    "title": "«Вы актер или батюшка?» Простой рабочий одевается как Пушкин и ходит так на оборонный завод",
+    "date": "2023-03-11 17:30:00",
+    "author": [
+        "Дарья Манохина"
+    ],
+    "topics": [
+        "Стиль и красота"
+    ],
+    "pos_frequencies": {}
+}
+```
+
+
+### Volume
+
+Aim at collecting not less than `100` articles from your chosen web source.

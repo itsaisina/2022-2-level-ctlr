@@ -1,0 +1,151 @@
+{
+    "plugins" : {
+        "md001": {
+            "enabled": false
+        },
+        "md002": {
+            "enabled": false
+        },
+        "md003": {
+            "enabled": true
+        },
+        "md004": {
+            "enabled": false
+        },
+        "md005": {
+            "enabled": false
+        },
+        "md006": {
+            "enabled": false
+        },
+        "md007": {
+            "enabled": false
+        },
+        "md008": {
+            "enabled": true
+        },
+        "md009": {
+            "enabled": false
+        },
+        "md010": {
+            "enabled": true
+        },
+        "md011": {
+            "enabled": true
+        },
+        "md012": {
+            "enabled": false
+        },
+        "md013": {
+            "enabled": false,
+            "line_length": 100,
+            "heading_line_length": 100,
+            "code_block_line_length": 100
+        },
+        "md014": {
+            "enabled": true
+        },
+        "md015": {
+            "enabled": true
+        },
+        "md016": {
+            "enabled": true
+        },
+        "md017": {
+            "enabled": true
+        },
+        "md018": {
+            "enabled": true
+        },
+        "md019": {
+            "enabled": true
+        },
+        "md020": {
+            "enabled": true
+        },
+        "md021": {
+            "enabled": true
+        },
+        "md022": {
+            "enabled": false
+        },
+        "md023": {
+            "enabled": true
+        },
+        "md024": {
+            "enabled": true
+        },
+        "md025": {
+            "enabled": true
+        },
+        "md026": {
+            "enabled": true
+        },
+        "md027": {
+            "enabled": true
+        },
+        "md028": {
+            "enabled": false
+        },
+        "md029": {
+            "enabled": true
+        },
+        "md030": {
+            "enabled": true
+        },
+        "md031": {
+            "enabled": false
+        },
+        "md032": {
+            "enabled": false
+        },
+        "md033": {
+            "enabled": true
+        },
+        "md034": {
+            "enabled": true
+        },
+        "md035": {
+            "enabled": true
+        },
+        "md036": {
+            "enabled": false
+        },
+        "md037": {
+            "enabled": true
+        },
+        "md038": {
+            "enabled": true
+        },
+        "md039": {
+            "enabled": true
+        },
+        "md040": {
+            "enabled": false
+        },
+        "md041": {
+            "enabled": true
+        },
+        "md042": {
+            "enabled": true
+        },
+        "md043": {
+            "enabled": true
+        },
+        "md044": {
+            "enabled": true
+        },
+        "md045": {
+            "enabled": true
+        },
+        "md046": {
+            "enabled": true
+        },
+        "md047": {
+            "enabled": true
+        },
+        "md048": {
+            "enabled": true
+        }
+    }
+}

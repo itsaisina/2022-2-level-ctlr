@@ -3,14 +3,17 @@
     "url": "test",
     "title": "title",
     "date": "1999-11-16 04:56:32",
-    "author": ["Красивая Мама"],
+    "author": [
+        "Красивая Мама"
+    ],
     "topics": [],
     "pos_frequencies": {
         "ADJ": 2,
-        "NOUN": 3,
+        "NOUN": 6,
         "ADV": 1,
         "VERB": 1,
-        "ADP": 1,
+        "ADP": 3,
+        "NUM": 1,
         "PUNCT": 1
     }
 }

@@ -2,10 +2,12 @@ alekseevna
 animacy
 blyudova
 breakpoint
+CONLL
+CoNLL
 ci
 cli
 config
-conll
+conllu
 crawlerrecursive
 dataset
 demidovskij
@@ -16,8 +18,10 @@ dto
 egor
 getter
 getters
+gorod
 howto
 html
+https
 igorevich
 inplace
 instantiation
@@ -39,9 +43,12 @@ mystem
 nikolaevich
 nikolaevna
 nlp
+nn
 novikova
 opencorpora
+param
 parsers
+pathlib
 pdf
 pos
 preprocessed
@@ -53,6 +60,7 @@ pymystem
 pypi
 recoverability
 sergeevna
+spacy
 subtype
 tbd
 tokenization
@@ -64,6 +72,7 @@ ud
 ui
 upos
 uraev
+utils
 vasilisa
 vkontakte
 vladimirovich

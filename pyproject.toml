@@ -39,7 +39,7 @@ exclude = [
 ]
 
 disallow_untyped_defs = true
-disallow_any_unimported = true
+disallow_any_unimported = false
 no_implicit_optional = true
 check_untyped_defs = true
 warn_return_any = true
@@ -57,7 +57,7 @@ disable_error_code = [
 
 [[tool.mypy.overrides]]
 module = ['ghapi.all', 'matplotlib', 'matplotlib.pyplot',
-'pymorphy2', 'pymystem3']
+'pymorphy2', 'pymorphy2.tagset', 'pymystem3']
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

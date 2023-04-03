@@ -4,7 +4,7 @@ Before starting the “Computer Tools for Linguistic Research” course, each st
 that will prepare the necessary tools for further work:
 1. [Check you have everything you need](#check-everything)
 2. [Fork the repository](#creating-fork)
-3. [Add mentors to collaborators](#adding-collaborators)
+3. [Add collaborators](#adding-collaborators)
 4. [Clone a fork of the repository to work locally](#cloning-fork)
 5. [Create a project in PyCharm development environment](#creating-project-in-pycharm)
 6. [Modify source code and push changes to remote fork](#working-pipeline)
@@ -42,10 +42,11 @@ To fork a repository on the Github, follow these steps:
 You have forked a repository! Pay attention to the link in the address bar of the browser: 
 it should contain your Github username and the name of the repository: `https://github.com/<your-username>/202X-2-level-ctlr`
 
-## <a name="adding-collaborators"></a>Add mentors to collaborators
+## <a name="adding-collaborators"></a>Add collaborators
 
-Only you can make changes to your fork. However, during the course, mentors will need to make changes to your fork: 
-add changes from the main fork, resolve conflicts, etc. You should add mentors to **collaborators**, 
+Only you can make changes to your fork. However, during the course, [Dmitry Uraev](https://github.com/dmitry-uraev) 
+and [Marina Kazyulina](https://github.com/marina-kaz) will need to make changes to your fork: 
+add changes from the main fork, resolve conflicts, etc. You should add them to **collaborators**, 
 so they have such an opportunity.
 
 To do this, follow these steps:
@@ -67,15 +68,13 @@ To do this, follow these steps:
 
 ![](../images/starting_guide/github_add_collaborator.png)
 
-5. Enter mentor’s GitHub username, select it from the list, and click `Add <mentor’s-username> to this repository`
-
-    * **NB**: You need to add [Dmitry Uraev](https://github.com/dmitry-uraev) 
-    and [Marina Kazyulina](https://github.com/marina-kaz) to the collaborators.
+5. Enter [Dmitry Uraev](https://github.com/dmitry-uraev) and [Marina Kazyulina](https://github.com/marina-kaz)
+GitHub username, select it from the list, and click `Add <github-username> to this repository`
    
 ![](../images/starting_guide/github_add_collaborator_finish.png)
 
-You have sent a mentor a request to be added to the collaborators! 
-Write to the mentor so he/she can accept your request.
+You have sent [Dmitry Uraev](https://github.com/dmitry-uraev) and [Marina Kazyulina](https://github.com/marina-kaz) 
+a request to be added to the collaborators! Write to them so they can accept your request.
 
 ## <a name="cloning-fork"></a>Clone a fork of the repository to work locally
 
@@ -112,7 +111,7 @@ To create a project in the PyCharm development environment to work with your for
 
 3. Click `OK`
 
-    * **NB**: If in the `Base Interpreter` field the Python version is < 3.9, then click `Python 3.X` and select a newer version from the drop-down list.
+    * **NB**: If in the `Base Interpreter` field the Python version is < 3.10, then click `Python 3.X` and select a newer version from the drop-down list.
 
 ![](../images/starting_guide/setting_interpreter.png)
 
@@ -205,7 +204,7 @@ You need to create a Pull Request on GitHub, so mentors can review your changes 
 
 8. Click `Assignees` and select your mentor from the list.
 
-    * **NB**: You can find your mentor in the progress sheet.
+    * **NB**: You can find your mentor in [the progress sheet](https://docs.google.com/spreadsheets/d/19DS6F6_NrgjGbLUjFm9-REuuaECvApEW_o4pHvaXyLQ).
 
 ![](../images/starting_guide/github_assignees.png)
 
@@ -217,14 +216,14 @@ You need to create a Pull Request on GitHub, so mentors can review your changes 
 
 Your work consists in repeating the following steps:
 1. [You change the source code](#changing-code).
-2. [You commit the changes](#committing-changes).
+2. <a name="step-2"></a>[You commit the changes](#committing-changes).
 3. [You push changes to a remote fork](#pushing-changes). 
 
    * They will automatically be updated in the Pull Request you created.
    
 5. The mentor reviews your code and leaves comments.
 6. You correct the source code according to the comments.
-7. See step #2
+7. [See step #2](#step-2)
 
 
 ## <a name="open-terminal"></a>Open a terminal

@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 from typing import Optional, Union
 
-from core_utils.article.article import Article, date_from_meta
+from core_utils.article.article import (Article, date_from_meta,
+                                        get_article_id_from_filepath)
+from core_utils.article.constants import ArtifactType
 
 
 def to_raw(article: Article) -> None:
@@ -14,6 +16,33 @@ def to_raw(article: Article) -> None:
     """
     with open(article.get_raw_text_path(), 'w', encoding='utf-8') as file:
         file.write(article.text)
+
+
+def from_raw(path: Union[Path, str],
+             article: Optional[Article] = None) -> Article:
+    """
+    Loads raw text and creates an Article with it
+    """
+
+    article_id = get_article_id_from_filepath(Path(path))
+
+    with open(file=path,
+              mode='r',
+              encoding='utf-8') as article_file:
+        text = article_file.read()
+
+    article = article if article else Article(url=None,
+                                              article_id=article_id)
+    article.text = text
+    return article
+
+
+def to_cleaned(article: Article) -> None:
+    """
+    Saves cleaned text
+    """
+    with open(article.get_file_path(ArtifactType.CLEANED), 'w', encoding='utf-8') as file:
+        file.write(article.get_cleaned_text())
 
 
 def to_meta(article: Article) -> None:
@@ -28,7 +57,8 @@ def to_meta(article: Article) -> None:
                   separators=(',', ': '))
 
 
-def from_meta(path: Union[Path, str], article: Optional[Article] = None) -> Article:
+def from_meta(path: Union[Path, str],
+              article: Optional[Article] = None) -> Article:
     """
     Loads meta.json file into the Article abstraction
     """
@@ -49,3 +79,17 @@ def from_meta(path: Union[Path, str], article: Optional[Article] = None) -> Arti
     # intentionally leave it empty
     article.text = ''
     return article
+
+
+def to_conllu(article: Article,
+              is_morphological: bool = False) -> None:
+    """
+    Saves conllu information from the Article into the .conllu file
+    """
+
+    article_type = ArtifactType.MORPHOLOGICAL_CONLLU if is_morphological else ArtifactType.POS_CONLLU
+
+    with open(file=article.get_file_path(article_type),
+              mode='w',
+              encoding='utf-8') as conllu_file:
+        conllu_file.write(article.get_conllu_text())
