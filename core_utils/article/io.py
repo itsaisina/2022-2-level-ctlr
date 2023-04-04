@@ -87,7 +87,8 @@ def to_conllu(article: Article,
     Saves conllu information from the Article into the .conllu file
     """
 
-    article_type = ArtifactType.MORPHOLOGICAL_CONLLU if is_morphological else ArtifactType.POS_CONLLU
+    article_type = ArtifactType.MORPHOLOGICAL_CONLLU if is_morphological \
+        else ArtifactType.POS_CONLLU
 
     with open(file=article.get_file_path(article_type),
               mode='w',

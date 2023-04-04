@@ -6,7 +6,10 @@ import re
 from pathlib import Path
 from typing import Union
 
-from pymorphy2.tagset import OpencorporaTag
+try:
+    from pymorphy2.tagset import OpencorporaTag
+except ImportError:  # pragma: no cover
+    print('No libraries installed. Failed to import.')
 
 
 def extract_sentences_from_raw_conllu(conllu_article_text: str) -> list[dict]:

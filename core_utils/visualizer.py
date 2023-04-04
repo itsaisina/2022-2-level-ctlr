@@ -10,7 +10,7 @@ try:
     import numpy as np  # type: ignore
 
     matplotlib.use('agg')
-except ImportError:
+except ImportError:  # pragma: no cover
     print('No libraries installed. Failed to import.')
 
 from core_utils.article.article import Article
