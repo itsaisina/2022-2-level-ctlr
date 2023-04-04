@@ -2,15 +2,17 @@
 Crawler implementation
 """
 import re
-import os
-from typing import Pattern, Union
-from pathlib import Path
-import datetime
-import requests
-from bs4 import BeautifulSoup
-from core_utils.article.article import Article
-from core_utils.config_dto import ConfigDTO
 import json
+import shutil
+import requests
+
+from pathlib import Path
+from bs4 import BeautifulSoup
+from datetime import datetime
+from typing import Pattern, Union
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import ASSETS_PATH
+from core_utils.article.article import Article
 
 
 class IncorrectSeedURLError(Exception):
@@ -85,11 +87,11 @@ class Config:
                 raise IncorrectSeedURLError("Invalid seed URL in configuration file")
 
         total_articles_to_find_and_parse = config.get('total_articles_to_find_and_parse')
-        if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse <= 1:
+        if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        if total_articles_to_find_and_parse >= 150:
+        if total_articles_to_find_and_parse > 150:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
@@ -102,7 +104,7 @@ class Config:
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
         timeout = config.get('timeout', 10)
-        if not isinstance(timeout, int) or timeout <= 1 or timeout >= 60:
+        if not isinstance(timeout, int) or timeout < 0 or timeout > 60:
             raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
 
         should_verify_certificate = config.get('should_verify_certificate', True)
@@ -155,6 +157,14 @@ class Config:
         """
         return self.config_dto.headless_mode
 
+    @property
+    def seed_urls(self):
+        return self._seed_urls
+
+    @property
+    def headers(self):
+        return self._headers
+
 
 def make_request(url: str, config: Config) -> requests.models.Response:
     """
@@ -187,7 +197,6 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         all_links_bs = article_bs.find_all('a')
-
         for link_bs in all_links_bs:
             href = link_bs.get('href')
             if href is None:
@@ -199,21 +208,20 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self.config.get_seed_urls():
+        for seed_url in self.get_search_urls():
             response = make_request(seed_url, self.config)
-            if response.status_code != 200:
+            if response.status_code != 200 and response.status_code != 404:
                 continue
 
             article_bs = BeautifulSoup(response.text, 'lxml')
             article_url = self._extract_url(article_bs)
-            if article_url is not None:
-                self.urls.append(article_url)
+            self.urls.append(article_url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self.config.seed_urls
 
 
 class HTMLParser:
@@ -242,33 +250,50 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find('div', class_='page-main__publish-data').find('a',
-                                                                                      class_='page-main__publish-author global-link')
+        author_elem = article_soup.find('div', class_='page-main__publish-data').find(
+            'a', class_='page-main__publish-author global-link')
         authors = [author_elem.text.strip()] if author_elem else ["NOT FOUND"]
 
-        date_elem = article_soup.find('div', class_='page-main__publish-data').find('a',
-                                                                                    class_='page-main__publish-date')
+        date_elem = article_soup.find('div', class_='page-main__publish-data').find(
+            'a', class_='page-main__publish-date')
         date_str = date_elem.get_text(strip=True) if date_elem else None
         date = self.unify_date_format(date_str)
 
-        category_elem = article_soup.find('div', class_='panel-group').find('a',
-                                                                            class_='panel-group__title global-link')
+        category_elem = article_soup.find('div', class_='panel-group').find(
+            'a', class_='panel-group__title global-link')
         category = category_elem.get_text(strip=True) if category_elem else None
 
         title_elem = article_soup.find('div', class_='page-main').find('h1', class_='page-main__head')
         title = title_elem.text.strip() if title_elem else None
 
-        self.article.authors = authors
+        self.article.author = authors
         self.article.date = date
         self.article.category = category
         self.article.title = title
 
-    def unify_date_format(self, date_str: str) -> datetime.datetime:
+    def unify_date_format(self, date_str: str) -> datetime:
         """
         Unifies date format
         """
-        date_obj = datetime.datetime.strptime(date_str, '%d %B %Y - %H:%M')
-        return date_obj
+        months_dict = {
+            "января": "January",
+            "февраля": "February",
+            "марта": "March",
+            "апреля": "April",
+            "мая": "May",
+            "июня": "June",
+            "июля": "July",
+            "августа": "August",
+            "сентября": "September",
+            "октября": "October",
+            "ноября": "November",
+            "декабря": "December"
+        }
+        date_format = '%d %B %Y - %H:%M'
+        date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
+        date_obj = str(datetime.strptime(date_str, date_format))
+        formatted_date = datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
+        return formatted_date
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -279,7 +304,6 @@ class HTMLParser:
         article_soup = BeautifulSoup(response.text, 'html.parser')
         self._fill_article_with_text(article_soup)
         self._fill_article_with_meta_information(article_soup)
-
         return self.article
 
 
@@ -287,10 +311,10 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    assets_path = Path(base_path) / 'articles'
-    if os.path.exists(assets_path):
-        os.remove(assets_path)
-    os.makedirs(assets_path)
+    assets_path = Path(base_path).joinpath(ASSETS_PATH)
+    if assets_path.exists() and assets_path.is_dir():
+        shutil.rmtree(assets_path)
+    assets_path.mkdir(parents=True, exist_ok=True)
 
 
 def main() -> None:
