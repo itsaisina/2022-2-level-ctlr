@@ -1,9 +1,9 @@
 {
     "seed_urls": ["https://chelny-izvest.ru/"],
     "headers":{"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 YaBrowser/23.1.5.708 Yowser/2.5 Safari/537.36"},
-    "total_articles_to_find_and_parse": 1,
+    "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
-    "timeout": 10,
+    "timeout": 1,
     "should_verify_certificate": true,
     "headless_mode": true
 }

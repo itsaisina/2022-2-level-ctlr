@@ -6,12 +6,15 @@ import json
 import shutil
 import requests
 
+from time import sleep
 from pathlib import Path
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Pattern, Union
+
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import ASSETS_PATH
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 from core_utils.article.article import Article
 
 
@@ -95,7 +98,7 @@ class Config:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        headers = config.get('headers', {})
+        headers = config.get('headers', dict)
         if not isinstance(headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
@@ -158,12 +161,12 @@ class Config:
         return self.config_dto.headless_mode
 
     @property
-    def seed_urls(self):
-        return self._seed_urls
-
-    @property
     def headers(self):
         return self._headers
+
+    @property
+    def seed_urls(self):
+        return self._seed_urls
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -171,10 +174,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    headers = config.get_headers()
-    timeout = config.get_timeout()
-    verify = config.get_verify_certificate()
-    response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    sleep(config.get_timeout())
+    response = requests.get(url, headers=config.get_headers())
     return response
 
 
@@ -215,7 +216,8 @@ class Crawler:
 
             article_bs = BeautifulSoup(response.text, 'lxml')
             article_url = self._extract_url(article_bs)
-            self.urls.append(article_url)
+            while len(self.urls) < self.config.get_num_articles():
+                self.urls.append(article_url)
 
     def get_search_urls(self) -> list:
         """
@@ -236,15 +238,14 @@ class HTMLParser:
         self.full_url = full_url
         self.article_id = article_id
         self.config = config
-        self.article = Article(full_url, article_id)
+        self.article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
         text_elements = article_soup.find("div", class_="page-main__text").find_all("p")
-        text = "\n".join([p.get_text().strip() for p in text_elements])
-        self.article.text = text
+        self.article.text = "\n".join([p.get_text().strip() for p in text_elements])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -299,9 +300,8 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.full_url, headers=self.config.headers)
-        response.encoding = 'utf-8'
-        article_soup = BeautifulSoup(response.text, 'html.parser')
+        response = make_request(self.full_url, self.config)
+        article_soup = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article_soup)
         self._fill_article_with_meta_information(article_soup)
         return self.article
