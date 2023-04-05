@@ -153,6 +153,7 @@ jobs:
       - name: Setup FIPL environment
         uses: fipl-hse/setup-env-action@v0.4
       - name: Run crawler config checks
+        if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
           bash config/core_utils_tests/_stage_core_utils_checks.sh "$PR_NAME" "$PR_AUTHOR"
 
@@ -171,6 +172,7 @@ jobs:
       - name: Setup FIPL environment
         uses: fipl-hse/setup-env-action@v0.4
       - name: Stubgen check
+        if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
           bash config/stage_1_style_tests/_stage_run_stubgen.sh
 
