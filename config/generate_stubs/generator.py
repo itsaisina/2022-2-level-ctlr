@@ -37,6 +37,7 @@ def remove_implementation_from_function(original_declaration: ast.stmt,
     original_declaration.body[1:] = []
 
 
+# pylint: disable=too-many-branches
 def cleanup_code(source_code_path: Path) -> str:
     """
     Removing implementation based on AST parsing of code

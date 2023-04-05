@@ -43,11 +43,13 @@ Instructors:
 
 ## Lectures history
 
-|    Date    | Lecture topic                                 | Important links            |
-|:----------:|:----------------------------------------------|:---------------------------|
-| 13.03.2022 | **Lecture:** Introduction to technical track. | [Lab no. 5 description][7] |
-| 17.03.2022 | **Seminar:** 3rd party libraries.             | N/A                        |
-| 20.03.2022 | **Lecture:** Requests and `HTML`.             | [Listing][8]               |
+|    Date    | Lecture topic                                   | Important links              |
+|:----------:|:------------------------------------------------|:-----------------------------|
+| 13.03.2022 | **Lecture:** Introduction to technical track.   | [Lab no. 5 description][7]   |
+| 17.03.2022 | **Seminar:** 3rd party libraries.               | N/A                          |
+| 20.03.2022 | **Lecture:** Requests and `HTML`.               | [Listing][8]                 |
+| 24.03.2022 | **Seminar:** Headers and introduction to `bs4`. | [Listing][12]                |
+| 03.04.2022 | **Lecture:** Access file system via `pathlib`.  | [Listing][13], [Listing][14] |
 
 You can find a more complete summary from lectures as a 
 [list of topics](./docs/public/lectures_content.md). 
@@ -109,7 +111,7 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 
 1. Academic performance: [link][9]
 1. Media websites list: [link][10]
-1. Python programming course from previous semester: [link]
+1. Python programming course from previous semester: [link][11]
 1. Scrapping tutorials: [YouTube series (russian)](https://youtu.be/7hn1_t2ZtJQ)
 1. [HOWTO: Set up your fork](./docs/public/starting_guide.md)
 1. [HOWTO: Running tests](./docs/public/tests.md)
@@ -125,3 +127,6 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 [9]: https://docs.google.com/spreadsheets/d/19DS6F6_NrgjGbLUjFm9-REuuaECvApEW_o4pHvaXyLQ
 [10]: https://docs.google.com/spreadsheets/d/11mmZCKW0WK7rZlpg3eOBA074zwWiXgJjivVUIdDe6-E
 [11]: https://github.com/fipl-hse/2022-2-level-labs
+[12]: ./seminars/seminar_03_24_2023/try_beautiful_soup.py
+[13]: ./seminars/seminar_04_03_2023/try_json.py
+[13]: ./seminars/seminar_04_03_2023/try_fs.py
