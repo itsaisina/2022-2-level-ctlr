@@ -323,7 +323,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     assets_path = Path(base_path).joinpath(ASSETS_PATH)
     if assets_path.exists() and assets_path.is_dir():
         shutil.rmtree(assets_path)
-    assets_path.mkdir(parents=True, exist_ok=True)
+    assets_path.mkdir(parents=True)
 
 
 def main() -> None:
