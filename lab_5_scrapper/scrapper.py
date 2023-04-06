@@ -7,15 +7,21 @@ import shutil
 
 import requests
 
+from time import sleep
 from pathlib import Path
+from random import randint
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Pattern, Union
 
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, \
-    TIMEOUT_UPPER_LIMIT
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw, to_meta
+from core_utils.constants import CRAWLER_CONFIG_PATH, \
+                                 ASSETS_PATH, \
+                                 NUM_ARTICLES_UPPER_LIMIT, \
+                                 TIMEOUT_LOWER_LIMIT, \
+                                 TIMEOUT_UPPER_LIMIT
 
 
 class IncorrectSeedURLError(Exception):
@@ -182,6 +188,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    wait_time = randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+    sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
@@ -299,11 +307,9 @@ class HTMLParser:
             "ноября": "November",
             "декабря": "December"
         }
-        date_format = '%d %B %Y - %H:%M'
         date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
-        date_obj = str(datetime.strptime(date_str, date_format))
-        formatted_date = datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
-        return formatted_date
+        date_obj = str(datetime.strptime(date_str, '%d %B %Y - %H:%M'))
+        return datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -330,7 +336,15 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    config = Config(CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config)
+    crawler.find_articles()
+    for ind, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, ind, config)
+        article = parser.parse()
+        to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
