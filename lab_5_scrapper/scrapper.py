@@ -4,17 +4,17 @@ Crawler implementation
 import re
 import json
 import shutil
+
 import requests
 
-from time import sleep
 from pathlib import Path
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Pattern, Union
 
-from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, \
+    TIMEOUT_UPPER_LIMIT
 from core_utils.article.article import Article
 
 
@@ -57,20 +57,29 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self.config_dto = self._extract_config_content()
-        self._seed_urls = self.get_seed_urls()
-        self._num_articles = self.get_num_articles()
-        self._headers = self.get_headers()
-        self._encoding = self.get_encoding()
-        self._timeout = self.get_timeout()
-        self._should_verify_certificate = self.get_verify_certificate()
+        self._extract_config_content()
+        config_file = self._read_config_file()
+        self._seed_urls = config_file['seed_urls']
+        self._num_articles = config_file['total_articles_to_find_and_parse']
+        self._headers = config_file['headers']
+        self._encoding = config_file['encoding']
+        self._timeout = config_file['timeout']
+        self._should_verify_certificate = config_file['should_verify_certificate']
+        self._headless_mode = config_file['headless_mode']
+
+    def _read_config_file(self) -> dict:
+        """
+        Reads and returns the loaded configuration from the JSON file
+        """
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        return config
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as file:
-            config = json.load(file)
+        config = self._read_config_file()
         return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
@@ -78,15 +87,14 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        config = self._read_config_file()
 
         seed_urls = config.get('seed_urls')
         if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
 
         for seed_url in seed_urls:
-            if not re.match(r'^https?://w?w?w?.', seed_url):
+            if not re.match(r'^https?://w?w?w?.', seed_url) and not seed_url.startswith('https://chelny-izvest.ru/news/'):
                 raise IncorrectSeedURLError("Invalid seed URL in configuration file")
 
         total_articles_to_find_and_parse = config.get('total_articles_to_find_and_parse')
@@ -94,27 +102,27 @@ class Config:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        if total_articles_to_find_and_parse > 150:
+        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        headers = config.get('headers', dict)
+        headers = config.get('headers')
         if not isinstance(headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
-        encoding = config.get('encoding', 'utf-8')
+        encoding = config.get('encoding')
         if not isinstance(encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
-        timeout = config.get('timeout', 10)
-        if not isinstance(timeout, int) or timeout < 0 or timeout > 60:
+        timeout = config.get('timeout')
+        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
 
-        should_verify_certificate = config.get('should_verify_certificate', True)
+        should_verify_certificate = config.get('should_verify_certificate')
         if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError("Invalid value for should_verify_certificate in configuration file")
 
-        headless_mode = config.get('headless_mode', True)
+        headless_mode = config.get('headless_mode')
         if not isinstance(headless_mode, bool):
             raise IncorrectVerifyError("Invalid value for headless_mode in configuration file")
 
@@ -122,43 +130,43 @@ class Config:
         """
         Retrieve seed urls
         """
-        return self.config_dto.seed_urls
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        return self.config_dto.total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        return self.config_dto.headers
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        return self.config_dto.encoding
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        return self.config_dto.timeout
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self.config_dto.should_verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        return self.config_dto.headless_mode
+        return self._headless_mode
 
     @property
     def headers(self):
@@ -174,8 +182,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    sleep(config.get_timeout())
-    response = requests.get(url, headers=config.get_headers())
+    response = requests.get(url,
+                            headers=config.get_headers(),
+                            timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
     return response
 
 
@@ -211,9 +221,8 @@ class Crawler:
         """
         for seed_url in self.get_search_urls():
             response = make_request(seed_url, self.config)
-            if response.status_code != 200 and response.status_code != 404:
+            if response.status_code != 200 or response.status_code == 404:
                 continue
-
             article_bs = BeautifulSoup(response.text, 'lxml')
             article_url = self._extract_url(article_bs)
             while len(self.urls) < self.config.get_num_articles():
@@ -257,15 +266,15 @@ class HTMLParser:
 
         date_elem = article_soup.find('div', class_='page-main__publish-data').find(
             'a', class_='page-main__publish-date')
-        date_str = date_elem.get_text(strip=True) if date_elem else None
+        date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
         date = self.unify_date_format(date_str)
 
         category_elem = article_soup.find('div', class_='panel-group').find(
             'a', class_='panel-group__title global-link')
-        category = category_elem.get_text(strip=True) if category_elem else None
+        category = category_elem.get_text(strip=True) if category_elem else "NOT FOUND"
 
         title_elem = article_soup.find('div', class_='page-main').find('h1', class_='page-main__head')
-        title = title_elem.text.strip() if title_elem else None
+        title = title_elem.text.strip() if title_elem else "NOT FOUND"
 
         self.article.author = authors
         self.article.date = date
