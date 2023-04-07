@@ -1,12 +1,12 @@
 """
 Article implementation
 """
+import enum
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Protocol, Sequence
 
-from core_utils.article.constants import ArtifactType
 from core_utils.constants import ASSETS_PATH
 
 
@@ -51,6 +51,20 @@ class SentenceProtocol(Protocol):
         """
         All tokens should be ConlluToken instance
         """
+
+    def get_conllu_text(self, include_morphological_tags: bool) -> str:
+        """
+        Gets the text in the CONLL-U format
+        """
+
+
+class ArtifactType(enum.Enum):
+    """
+    Types of artifacts that can be created by text processing pipelines
+    """
+    CLEANED = 'cleaned'
+    MORPHOLOGICAL_CONLLU = 'morphological_conllu'
+    POS_CONLLU = 'pos_conllu'
 
 
 class Article:
@@ -100,11 +114,12 @@ class Article:
         """
         return self.text
 
-    def get_conllu_text(self) -> str:
+    def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Gets the text in the CONLL-U format
         """
-        return '\n'.join([str(sentence) for sentence in self._conllu_sentences]) + '\n'
+        return '\n'.join([sentence.get_conllu_text(include_morphological_tags) for sentence in
+                          self._conllu_sentences]) + '\n'
 
     def set_conllu_sentences(self, sentences: Sequence[SentenceProtocol]) -> None:
         """

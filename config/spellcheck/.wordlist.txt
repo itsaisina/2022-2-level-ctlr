@@ -22,6 +22,7 @@ gorod
 howto
 html
 https
+initializer
 igorevich
 inplace
 instantiation
@@ -50,6 +51,7 @@ param
 parsers
 pathlib
 pdf
+png
 pos
 preprocessed
 preprocessing

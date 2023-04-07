@@ -197,8 +197,7 @@ Inside the method you need to define and check formal criteria for valid configu
 When config is invalid:
 
 1. one of the following errors is thrown:
-   * `IncorrectSeedURLError`: seed URL does not match standard pattern `"https?://w?w?w?."` 
-   or does not correspond to the target website
+   * `IncorrectSeedURLError`: seed URL does not match standard pattern `"https?://w?w?w?."`
    * `NumberOfArticlesOutOfRangeError`:  total number of articles is out of range from 1 to 150
    * `IncorrectNumberOfArticlesError`: total number of articles to parse is not integer
    * `IncorrectHeadersError`: headers are not in a form of dictionary

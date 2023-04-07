@@ -153,15 +153,14 @@ File with example text can be found [here](lab_6_pipeline/data/ud_test.conllu).
    4	времени	время	NOUN	_	Animacy=Inan|Case=Gen|Gender=Neut|Number=Sing	3	nmod	3:nmod:gen	_
    5	число	число	NOUN	_	Animacy=Inan|Case=Acc|Gender=Neut|Number=Sing	11	obj	11:obj	_
    6	ИТ	ИТ	PROPN	_	Animacy=Inan|Case=Nom|Gender=Neut|Number=Sing	8	compound	8:compound	SpaceAfter=No
-   7	-	-	PUNCT	_	_	6	punct	6:punct	_
-   8	специалистов	специалист	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Plur	5	nmod	5:nmod:gen	_
-   9	в	в	ADP	_	_	10	case	10:case	_
-   10	Армении	Армения	PROPN	_	Animacy=Inan|Case=Loc|Gender=Fem|Number=Sing	5	nmod	5:nmod:в:loc	_
-   11	составляло	составлять	VERB	_	Aspect=Imp|Gender=Neut|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act	0	root	0:root	_
-   12	около	около	ADP	_	_	14	case	14:case	_
-   13	десяти	десять	NUM	_	Case=Gen|NumType=Card	14	nummod	14:nummod	_
-   14	тысяч	тысяча	NOUN	_	Animacy=Inan|Case=Gen|Gender=Fem|Number=Plur	11	nsubj	11:nsubj	SpaceAfter=No
-   15	.	.	PUNCT	_	_	11	punct	11:punct	_
+   7	специалистов	специалист	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Plur	5	nmod	5:nmod:gen	_
+   8	в	в	ADP	_	_	10	case	10:case	_
+   9	Армении	Армения	PROPN	_	Animacy=Inan|Case=Loc|Gender=Fem|Number=Sing	5	nmod	5:nmod:в:loc	_
+   10	составляло	составлять	VERB	_	Aspect=Imp|Gender=Neut|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act	0	root	0:root	_
+   11	около	около	ADP	_	_	14	case	14:case	_
+   12	десяти	десять	NUM	_	Case=Gen|NumType=Card	14	nummod	14:nummod	_
+   13	тысяч	тысяча	NOUN	_	Animacy=Inan|Case=Gen|Gender=Fem|Number=Plur	11	nsubj	11:nsubj	SpaceAfter=No
+   14	.	.	PUNCT	_	_	11	punct	11:punct	_
    ```
 
 It has the following structure, where each "column" is responsible for:

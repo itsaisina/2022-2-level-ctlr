@@ -5,9 +5,8 @@ import json
 from pathlib import Path
 from typing import Optional, Union
 
-from core_utils.article.article import (Article, date_from_meta,
+from core_utils.article.article import (Article, ArtifactType, date_from_meta,
                                         get_article_id_from_filepath)
-from core_utils.article.constants import ArtifactType
 
 
 def to_raw(article: Article) -> None:
@@ -82,15 +81,15 @@ def from_meta(path: Union[Path, str],
 
 
 def to_conllu(article: Article,
-              is_morphological: bool = False) -> None:
+              include_morphological_tags: bool = False) -> None:
     """
     Saves conllu information from the Article into the .conllu file
     """
-
-    article_type = ArtifactType.MORPHOLOGICAL_CONLLU if is_morphological \
-        else ArtifactType.POS_CONLLU
+    article_type = ArtifactType.POS_CONLLU
+    if include_morphological_tags:
+        article_type = ArtifactType.MORPHOLOGICAL_CONLLU
 
     with open(file=article.get_file_path(article_type),
               mode='w',
               encoding='utf-8') as conllu_file:
-        conllu_file.write(article.get_conllu_text())
+        conllu_file.write(article.get_conllu_text(include_morphological_tags))

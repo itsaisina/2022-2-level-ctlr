@@ -4,12 +4,51 @@ Parsers for CONLL-U
 import json
 import re
 from pathlib import Path
-from typing import Union
+from typing import Protocol, Union
 
-try:
-    from pymorphy2.tagset import OpencorporaTag
-except ImportError:  # pragma: no cover
-    print('No libraries installed. Failed to import.')
+
+class OpencorporaTagProtocol(Protocol):
+    """
+    Abstraction definition for pymorphy2.tagset.OpencorporaTag
+    Link: https://pymorphy2.readthedocs.io/en/stable/_modules/pymorphy2/tagset.html
+    """
+
+    # pylint: disable=invalid-name
+    @property
+    def POS(self) -> str:
+        """
+        pymorphy2 attribute: POS
+        """
+
+    @property
+    def gender(self) -> str:
+        """
+        pymorphy2 attribute: gender
+        """
+
+    @property
+    def number(self) -> str:
+        """
+        pymorphy2 attribute: number
+        """
+
+    @property
+    def animacy(self) -> str:
+        """
+        pymorphy2 attribute: animacy
+        """
+
+    @property
+    def case(self) -> str:
+        """
+        pymorphy2 attribute: case
+        """
+
+    @property
+    def tense(self) -> str:
+        """
+        pymorphy2 attribute: tense
+        """
 
 
 def extract_sentences_from_raw_conllu(conllu_article_text: str) -> list[dict]:
@@ -62,13 +101,13 @@ class TagConverter:
         self.tense = 'Tense'
         self.tags = 'TAGS'
 
-    def convert_morphological_tags(self, tags: Union[str, OpencorporaTag]) -> str:
+    def convert_morphological_tags(self, tags: Union[str, OpencorporaTagProtocol]) -> str:
         """
         Converts the tags into the UD format
         """
         raise NotImplementedError
 
-    def convert_pos(self, tags: Union[str, OpencorporaTag]) -> str:
+    def convert_pos(self, tags: Union[str, OpencorporaTagProtocol]) -> str:
         """
         Extracts and converts POS from the tags into the UD format
         """

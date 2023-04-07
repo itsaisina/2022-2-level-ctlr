@@ -7,7 +7,6 @@ from typing import Callable
 try:
     import matplotlib
     import matplotlib.pyplot as plt
-    import numpy as np  # type: ignore
 
     matplotlib.use('agg')
 except ImportError:  # pragma: no cover
@@ -25,7 +24,7 @@ def visualize(article: Article, path_to_save: Path) -> None:
     sorted_frequencies = sorted(statistics.values(), reverse=True)
     get_occurrences: Callable = lambda x: statistics[x]
     sorted_tags = sorted(statistics, key=get_occurrences, reverse=True)
-    pos_tags = np.arange(number_of_tags)
+    pos_tags = list(range(number_of_tags))
     colors = ('b', 'g', 'r', 'c')
 
     figure = plt.figure()

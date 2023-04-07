@@ -14,7 +14,7 @@ The package contains the following modules:
 ## <a name="constants"></a>`constants.py`
 
 Module `constants.py` defines an `ArtifactType` class. It represents the types of artifacts 
-that can be created by text processing pipelines, such as `CLEANED`, `MORPHOLOGICAL_CONLLU` and `FULL_CONLLU`. 
+that can be created by text processing pipelines, such as `CLEANED`, `MORPHOLOGICAL_CONLLU` and `POS_CONLLU`. 
 The description of each artifact you can find in [Dataset requirements](#dataset.md).
 
 > **HINT**: You should utilize attributes of `ArtifactType` in order to save processed versions of files. 
@@ -32,8 +32,8 @@ so we advise you to study them.
 
 In addition to the `Article` class, the module has:
 
-1. `split_by_sentence(text)` function which you can use to split text to list of sentences in Lab 6.
-2. `get_article_id_from_filepath(path_to_file)` function which extracts the article id from its path.
+1. `get_article_id_from_filepath(path_to_file)` function which extracts the article id from its path.
+2. `split_by_sentence(text)` function which you can use to split text to list of sentences in Lab 6.
 3. `SentenceProtocol` class which you should inherit for `ConlluSentence` class in Lab 6.
 
 ## <a name="ud"></a>`ud.py`
@@ -85,8 +85,8 @@ It consists of the following functions, which are grouped by usage in the labs:
 
 ### Lab_6
 
-* `from_raw(path_to_raw_data)` - use to load raw texts and create the `Article` abstraction;
+* `from_raw(path_to_raw_data, article)` - use to load raw texts and create the `Article` abstraction;
 * `to_cleaned(article)` - use to save cleaned texts of each article, i.e. lowercased texts with no punctuation;
 * `to_meta(article)` - use to save POS information about each article;
-* `from_meta(path_to_meta_data)` - use to load meta-information about each article and create the `Article` abstraction;
-* `to_conllu(article)` - use to save morphological and syntactic information from the `Article` abstraction into the `conllu` file;
+* `from_meta(path_to_meta_data, article)` - use to load meta-information about each article and create the `Article` abstraction;
+* `to_conllu(article, include_morphological_tags: bool)` - use to save morphological and syntactic information from the `Article` abstraction into the `conllu` file;

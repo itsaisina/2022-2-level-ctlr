@@ -11,15 +11,18 @@ The description of the structure and each of the elements of the dataset is prov
             +-- articles
                 +-- 1_raw.txt <- the raw text of the article with the ID as the name
                 +-- 1_cleaned.txt <- lowercased text with no punctuation
-                +-- 1_morphological_conllu.conllu <- UD text format with morphological tags 
+                +-- 1_pos_conllu.conllu <- UD text format with POS tags
+                +-- 1_morphological_conllu.conllu <- UD text format with morphological tags
                 +-- 1_meta.json <- the meta-information of the article
                 +-- 2_raw.txt
                 +-- 2_cleaned.txt
+                +-- 2_pos_conllu.conllu <- UD text format with POS tags
                 +-- 2_morphological_conllu.conllu
                 +-- 2_meta.json
                 +-- ...
                 +-- 100_raw.txt
                 +-- 100_cleaned.txt
+                +-- 100_pos_conllu.conllu <- UD text format with POS tags
                 +-- 100_morphological_conllu.conllu
                 +-- 100_meta.json
 ```
@@ -57,6 +60,39 @@ Example:
 при этом главным реквизитом игры стала как ни странно рисоварка хотя на первый взгляд сложно представить 
 что же могло заинтересовать животных в обычном кухонном агрегате оказывается пузырьки которые то и дело 
 возникают на крышке рисоварки эти пузырьки крайне занимательно прихлопывать лапами
+```
+
+#### POS annotation
+
+Texts with POS annotation are stored in `X_pos_conllu.conllu` files where `X` corresponds to the index of the article. 
+
+The files contain the following information about the tags: `ID`, `FORM`, `LEMMA`, `UPOS`, `XPOS`.
+
+Read more about the structure of such files in [UD format description](ud_format.md).
+
+Example for the first sentence of the sample article:
+
+```
+# sent_id = 0
+# text = Жители Китая, у которых дома живут три кошки, сняли на видео развлечение, которое придумали питомицы.
+1	Жители	житель	NOUN	_	_	0	root	_	_
+2	Китая	китай	NOUN	_	_	0	root	_	_
+3	у	у	ADP	_	_	0	root	_	_
+4	которых	который	ADJ	_	_	0	root	_	_
+5	дома	дома	ADV	_	_	0	root	_	_
+6	живут	жить	VERB	_	_	0	root	_	_
+7	три	три	NUM	_	_	0	root	_	_
+8	кошки	кошка	NOUN	_	_	0	root	_	_
+9	сняли	снимать	VERB	_	_	0	root	_	_
+10	на	на	ADP	_	_	0	root	_	_
+11	видео	видео	NOUN	_	_	0	root	_	_
+12	развлечение	развлечение	NOUN	_	_	0	root	_	_
+13	которое	который	ADJ	_	_	0	root	_	_
+14	придумали	придумывать	VERB	_	_	0	root	_	_
+15	питомицы	питомица	NOUN	_	_	0	root	_	_
+16	.	.	PUNCT	_	_	0	root	_	_
+
+
 ```
 
 #### Morphological annotation

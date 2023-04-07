@@ -4,6 +4,7 @@ ghapi==0.1.19
 flake8==6.0.0
 flake8-isort==6.0.0
 mypy==1.1.1
+pandas==1.5.3
 pandas-stubs==1.5.3.230203
 pymarkdownlnt==0.9.9
 pymdown-extensions==9.5

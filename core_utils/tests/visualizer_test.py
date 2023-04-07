@@ -21,13 +21,14 @@ class VisualizeTest(unittest.TestCase):
     """
     Class for testing Visualize implementation
     """
+
     # pylint: disable=assignment-from-no-return
     def setUp(self) -> None:
         TEST_PATH.mkdir(exist_ok=True)
         self.path_to_ref_image = TEST_FILES_FOLDER / 'reference_image.png'
         self.path_to_save = TEST_PATH / '0_image.png'
 
-        path_to_meta = TEST_FILES_FOLDER / '0_meta.json'
+        path_to_meta = TEST_FILES_FOLDER / '1_meta.json'
         self.article = from_meta(path_to_meta)
 
         visualize(self.article, self.path_to_save)
