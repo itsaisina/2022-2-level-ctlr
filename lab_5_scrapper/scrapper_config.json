@@ -1,5 +1,21 @@
 {
-    "seed_urls": ["https://chelny-izvest.ru/news/"],
+    "seed_urls": [
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti6",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/2",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/3",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/4",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/5",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/6",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/7",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/8",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/9",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/10",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/11",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/12",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/13",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/14",
+        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/15"
+    ],
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-encoding": "gzip, deflate, br",

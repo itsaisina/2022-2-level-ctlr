@@ -4,52 +4,68 @@ Crawler implementation
 import re
 import json
 import shutil
-
-import requests
-
+import datetime
 from time import sleep
 from pathlib import Path
 from random import randint
-from bs4 import BeautifulSoup
-from datetime import datetime
 from typing import Pattern, Union
-
+import requests
+from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
-from core_utils.constants import CRAWLER_CONFIG_PATH, \
-                                 ASSETS_PATH, \
-                                 NUM_ARTICLES_UPPER_LIMIT, \
-                                 TIMEOUT_LOWER_LIMIT, \
-                                 TIMEOUT_UPPER_LIMIT
+from core_utils.constants import (CRAWLER_CONFIG_PATH,
+                                  ASSETS_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT,
+                                  TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
-    pass
+    """
+    Exception raised when seed_urls value in configuration
+    file is not a list of strings or a string is not a valid URL
+    """
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    pass
+    """
+    Exception raised when total_articles_to_find_and_parse value
+    in configuration file is out of range
+    """
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    pass
+    """
+    Exception raised when total_articles_to_find_and_parse
+    value in configuration file is not an integer greater than 0
+    """
 
 
 class IncorrectHeadersError(Exception):
-    pass
+    """
+    Exception raised when headers value in configuration file is not a dictionary
+    """
 
 
 class IncorrectEncodingError(Exception):
-    pass
+    """
+    Exception raised when encoding value in configuration file is not a string
+    """
 
 
 class IncorrectTimeoutError(Exception):
-    pass
+    """
+    Exception raised when timeout value in configuration file
+    is not an integer between 1 and 30
+    """
 
 
 class IncorrectVerifyError(Exception):
-    pass
+    """
+    Exception raised when should_verify_certificate
+    value in configuration file is not a boolean
+    """
 
 
 class Config:
@@ -63,29 +79,21 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._extract_config_content()
-        config_file = self._read_config_file()
-        self._seed_urls = config_file['seed_urls']
-        self._num_articles = config_file['total_articles_to_find_and_parse']
-        self._headers = config_file['headers']
-        self._encoding = config_file['encoding']
-        self._timeout = config_file['timeout']
-        self._should_verify_certificate = config_file['should_verify_certificate']
-        self._headless_mode = config_file['headless_mode']
-
-    def _read_config_file(self) -> dict:
-        """
-        Reads and returns the loaded configuration from the JSON file
-        """
-        with open(self.path_to_config, 'r', encoding='utf-8') as file:
-            config = json.load(file)
-        return config
+        config_file = self._extract_config_content()
+        self._seed_urls = config_file.seed_urls
+        self._num_articles = config_file.total_articles
+        self._headers = config_file.headers
+        self._encoding = config_file.encoding
+        self._timeout = config_file.timeout
+        self._should_verify_certificate = config_file.should_verify_certificate
+        self._headless_mode = config_file.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        config = self._read_config_file()
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
         return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
@@ -93,17 +101,18 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config = self._read_config_file()
+        config = self._extract_config_content()
 
-        seed_urls = config.get('seed_urls')
+        seed_urls = config.seed_urls
         if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
 
         for seed_url in seed_urls:
-            if not re.match(r'^https?://w?w?w?.', seed_url) and not seed_url.startswith('https://chelny-izvest.ru/news/'):
+            if not re.match(r'^https?://w?w?w?.', seed_url) and not seed_url.startswith(
+                    'https://chelny-izvest.ru/news/'):
                 raise IncorrectSeedURLError("Invalid seed URL in configuration file")
 
-        total_articles_to_find_and_parse = config.get('total_articles_to_find_and_parse')
+        total_articles_to_find_and_parse = config.total_articles
         if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
@@ -112,23 +121,23 @@ class Config:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        headers = config.get('headers')
+        headers = config.headers
         if not isinstance(headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
-        encoding = config.get('encoding')
+        encoding = config.encoding
         if not isinstance(encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
-        timeout = config.get('timeout')
+        timeout = config.timeout
         if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
 
-        should_verify_certificate = config.get('should_verify_certificate')
+        should_verify_certificate = config.should_verify_certificate
         if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError("Invalid value for should_verify_certificate in configuration file")
 
-        headless_mode = config.get('headless_mode')
+        headless_mode = config.headless_mode
         if not isinstance(headless_mode, bool):
             raise IncorrectVerifyError("Invalid value for headless_mode in configuration file")
 
@@ -174,14 +183,6 @@ class Config:
         """
         return self._headless_mode
 
-    @property
-    def headers(self):
-        return self._headers
-
-    @property
-    def seed_urls(self):
-        return self._seed_urls
-
 
 def make_request(url: str, config: Config) -> requests.models.Response:
     """
@@ -220,7 +221,7 @@ class Crawler:
             href = link_bs.get('href')
             if href is None:
                 continue
-            elif href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
+            if href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
                 return href
 
     def find_articles(self) -> None:
@@ -240,7 +241,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self.config.seed_urls
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -268,28 +269,25 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find('div', class_='page-main__publish-data').find(
-            'a', class_='page-main__publish-author global-link')
-        authors = [author_elem.text.strip()] if author_elem else ["NOT FOUND"]
+        author_elem = article_soup.find_all('a', class_='page-main__publish-author global-link')[0]
+        authors = [author_elem.get_text(strip=True)] if author_elem else ["NOT FOUND"]
 
-        date_elem = article_soup.find('div', class_='page-main__publish-data').find(
-            'a', class_='page-main__publish-date')
+        date_elem = article_soup.find_all('a', class_='page-main__publish-date')[0]
         date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
         date = self.unify_date_format(date_str)
 
-        category_elem = article_soup.find('div', class_='panel-group').find(
-            'a', class_='panel-group__title global-link')
+        category_elem = article_soup.find_all('a', class_='panel-group__title global-link')[1]
         category = category_elem.get_text(strip=True) if category_elem else "NOT FOUND"
 
-        title_elem = article_soup.find('div', class_='page-main').find('h1', class_='page-main__head')
-        title = title_elem.text.strip() if title_elem else "NOT FOUND"
+        title_elem = article_soup.find_all('h1', class_='page-main__head')[0]
+        title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
 
         self.article.author = authors
         self.article.date = date
         self.article.category = category
         self.article.title = title
 
-    def unify_date_format(self, date_str: str) -> datetime:
+    def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
@@ -308,8 +306,8 @@ class HTMLParser:
             "декабря": "December"
         }
         date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
-        date_obj = str(datetime.strptime(date_str, '%d %B %Y - %H:%M'))
-        return datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
+        date_obj = str(datetime.datetime.strptime(date_str, '%d %B %Y - %H:%M'))
+        return datetime.datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
