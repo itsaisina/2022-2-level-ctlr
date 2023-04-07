@@ -104,7 +104,8 @@ class Config:
         config = self._extract_config_content()
 
         seed_urls = config.seed_urls
-        if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
+        if not isinstance(seed_urls, list) \
+                or not all(isinstance(url, str) for url in seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
 
         for seed_url in seed_urls:
@@ -113,7 +114,8 @@ class Config:
                 raise IncorrectSeedURLError("Invalid seed URL in configuration file")
 
         total_articles_to_find_and_parse = config.total_articles
-        if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse < 1:
+        if not isinstance(total_articles_to_find_and_parse, int) \
+                or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
@@ -130,12 +132,14 @@ class Config:
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
         timeout = config.timeout
-        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(timeout, int) \
+                or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
 
         should_verify_certificate = config.should_verify_certificate
         if not isinstance(should_verify_certificate, bool):
-            raise IncorrectVerifyError("Invalid value for should_verify_certificate in configuration file")
+            raise IncorrectVerifyError(
+                "Invalid value for should_verify_certificate in configuration file")
 
         headless_mode = config.headless_mode
         if not isinstance(headless_mode, bool):
