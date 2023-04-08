@@ -213,7 +213,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
+        self._config = config
         self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
@@ -233,19 +233,20 @@ class Crawler:
         Finds articles
         """
         for seed_url in self.get_search_urls():
-            response = make_request(seed_url, self.config)
+            response = make_request(seed_url, self._config)
             if response.status_code != 200 or response.status_code == 404:
                 continue
             article_bs = BeautifulSoup(response.text, 'lxml')
             article_url = self._extract_url(article_bs)
-            while len(self.urls) < self.config.get_num_articles():
-                self.urls.append(article_url)
+            self.urls.append(article_url)
+            if len(self.urls) >= self._config.get_num_articles():
+                return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self._config.get_seed_urls()
 
 
 class HTMLParser:
@@ -267,7 +268,7 @@ class HTMLParser:
         Finds text of article
         """
         text_elements = article_soup.find("div", class_="page-main__text").find_all("p")
-        self.article.text = "\n".join([p.get_text().strip() for p in text_elements])
+        self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -280,15 +281,15 @@ class HTMLParser:
         date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
         date = self.unify_date_format(date_str)
 
-        category_elem = article_soup.find_all('a', class_='panel-group__title global-link')[1]
-        category = category_elem.get_text(strip=True) if category_elem else "NOT FOUND"
+        topics_elem = article_soup.find_all('a', class_='panel-group__title global-link')[1]
+        topic = topics_elem.get_text(strip=True) if topics_elem else "NOT FOUND"
 
         title_elem = article_soup.find_all('h1', class_='page-main__head')[0]
         title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
 
         self.article.author = authors
         self.article.date = date
-        self.article.category = category
+        self.article.topics = topic
         self.article.title = title
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
@@ -328,10 +329,38 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    assets_path = Path(base_path).joinpath(ASSETS_PATH)
-    if assets_path.exists() and assets_path.is_dir():
-        shutil.rmtree(assets_path)
-    assets_path.mkdir(parents=True)
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
+
+
+class CrawlerRecursive(Crawler):
+    """
+    Recursive Crawler implementation
+    """
+
+    def __init__(self, config: Config) -> None:
+        """
+        Initializes an instance of the Recursive Crawler class
+        """
+        super().__init__(config)
+        self.start_url = self.get_search_urls()[0]
+
+    def find_articles(self) -> None:
+        """
+        Finds articles recursively starting from the given URL
+        """
+        response = make_request(self.start_url, self._config)
+        if response.status_code != 200:
+            return
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        article_url = self._extract_url(article_bs)
+        if article_url not in self.urls:
+            self.urls.append(article_url)
+        if len(self.urls) >= self._config.get_num_articles():
+            return
+        self.start_url = article_url
+        self.find_articles()
 
 
 def main() -> None:
@@ -343,6 +372,16 @@ def main() -> None:
     crawler = Crawler(config)
     crawler.find_articles()
     for ind, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, ind, config)
+        article = parser.parse()
+        to_raw(article)
+        to_meta(article)
+
+    config = Config(CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    recursive_crawler = CrawlerRecursive(config)
+    recursive_crawler.find_articles()
+    for ind, url in enumerate(recursive_crawler.urls, 1):
         parser = HTMLParser(url, ind, config)
         article = parser.parse()
         to_raw(article)
