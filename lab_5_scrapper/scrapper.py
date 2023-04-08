@@ -14,15 +14,11 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (
-    ASSETS_PATH,
-    CRAWLER_CONFIG_PATH,
-    NUM_ARTICLES_UPPER_LIMIT,
-    TIMEOUT_LOWER_LIMIT,
-    TIMEOUT_UPPER_LIMIT,
-)
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -217,6 +213,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
+        self._seed_urls = config.get_seed_urls()
         self._config = config
         self.urls = []
 
@@ -224,14 +221,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_links_bs = article_bs.find_all('a')
-        for link_bs in all_links_bs:
-            href = link_bs.get('href')
-            if href is None:
-                continue
-            if href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
-                return href
-        return ''
+        href = article_bs.get('href')
+        if href is not None and \
+                href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
+            return href
 
     def find_articles(self) -> None:
         """
@@ -239,19 +232,20 @@ class Crawler:
         """
         for seed_url in self.get_search_urls():
             response = make_request(seed_url, self._config)
-            if response.status_code != 200 or response.status_code == 404:
-                continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            article_url = self._extract_url(article_bs)
-            self.urls.append(article_url)
-            if len(self.urls) >= self._config.get_num_articles():
-                return
+            for p in article_bs.find_all('a'):
+                article_url = self._extract_url(p)
+                if article_url is None:
+                    continue
+                self.urls.append(article_url)
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self._config.get_seed_urls()
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -350,22 +344,26 @@ class CrawlerRecursive(Crawler):
         """
         super().__init__(config)
         self.start_url = self.get_search_urls()[0]
+        self.visited_urls = set()
 
     def find_articles(self) -> None:
         """
         Finds articles recursively starting from the given URL
         """
+        if len(self.visited_urls) >= self._config.get_num_articles():
+            return
         response = make_request(self.start_url, self._config)
         if response.status_code != 200:
             return
         article_bs = BeautifulSoup(response.text, 'lxml')
         article_url = self._extract_url(article_bs)
-        if article_url not in self.urls:
-            self.urls.append(article_url)
-        if len(self.urls) >= self._config.get_num_articles():
+        if article_url in self.visited_urls:
             return
-        self.start_url = article_url
-        self.find_articles()
+        self.visited_urls.add(article_url)
+        self.urls.append(article_url)
+        if len(self.visited_urls) < self._config.get_num_articles():
+            self.start_url = article_url
+            self.find_articles()
 
 
 def main() -> None:
