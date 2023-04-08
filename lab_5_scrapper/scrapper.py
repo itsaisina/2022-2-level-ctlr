@@ -1,24 +1,28 @@
 """
 Crawler implementation
 """
-import re
-import json
-import shutil
 import datetime
-from time import sleep
+import json
+import random
+import re
+import shutil
+import time
 from pathlib import Path
-from random import randint
 from typing import Pattern, Union
+
 import requests
 from bs4 import BeautifulSoup
-from core_utils.config_dto import ConfigDTO
+
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
-from core_utils.constants import (CRAWLER_CONFIG_PATH,
-                                  ASSETS_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
-                                  TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT)
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (
+    ASSETS_PATH,
+    CRAWLER_CONFIG_PATH,
+    NUM_ARTICLES_UPPER_LIMIT,
+    TIMEOUT_LOWER_LIMIT,
+    TIMEOUT_UPPER_LIMIT,
+)
 
 
 class IncorrectSeedURLError(Exception):
@@ -193,8 +197,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    wait_time = randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
-    sleep(wait_time)
+    wait_time = random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+    time.sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
@@ -227,6 +231,7 @@ class Crawler:
                 continue
             if href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
                 return href
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -374,8 +379,9 @@ def main() -> None:
     for ind, url in enumerate(crawler.urls, 1):
         parser = HTMLParser(url, ind, config)
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
     config = Config(CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
@@ -384,8 +390,9 @@ def main() -> None:
     for ind, url in enumerate(recursive_crawler.urls, 1):
         parser = HTMLParser(url, ind, config)
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
