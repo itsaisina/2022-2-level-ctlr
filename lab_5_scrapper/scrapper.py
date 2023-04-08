@@ -222,19 +222,19 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if href is not None and \
-                href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
+        if isinstance(href, str) and href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
             return href
+        return href[0]
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self.get_search_urls():
+        for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for p in article_bs.find_all('a'):
-                article_url = self._extract_url(p)
+            for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
+                article_url = self._extract_url(paragraph)
                 if article_url is None:
                     continue
                 self.urls.append(article_url)
@@ -353,17 +353,18 @@ class CrawlerRecursive(Crawler):
         if len(self.visited_urls) >= self._config.get_num_articles():
             return
         response = make_request(self.start_url, self._config)
-        if response.status_code != 200:
-            return
         article_bs = BeautifulSoup(response.text, 'lxml')
-        article_url = self._extract_url(article_bs)
-        if article_url in self.visited_urls:
-            return
-        self.visited_urls.add(article_url)
-        self.urls.append(article_url)
-        if len(self.visited_urls) < self._config.get_num_articles():
-            self.start_url = article_url
-            self.find_articles()
+        for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
+            article_url = self._extract_url(paragraph)
+            if article_url is None or 'http' not in article_url:
+                continue
+            if article_url in self.visited_urls:
+                return
+            self.visited_urls.add(article_url)
+            self.urls.append(article_url)
+            if len(self.visited_urls) < self._config.get_num_articles():
+                self.start_url = article_url
+                self.find_articles()
 
 
 def main() -> None:
