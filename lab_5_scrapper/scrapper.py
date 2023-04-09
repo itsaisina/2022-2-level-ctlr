@@ -222,9 +222,10 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if isinstance(href, str) and href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
+        if isinstance(href, str) and \
+                href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
             return href
-        return href[0]
+        return str(href)
 
     def find_articles(self) -> None:
         """
