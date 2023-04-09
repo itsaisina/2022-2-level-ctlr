@@ -193,7 +193,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    wait_time = random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+    wait_time = random.randrange(1, 2)
     time.sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
