@@ -1,8 +1,10 @@
 """
 Crawler implementation
 """
+import concurrent.futures
 import datetime
 import json
+import random
 import re
 import shutil
 import time
@@ -192,7 +194,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(0.6)
+    wait_time = random.randrange(1, 2)
+    time.sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
@@ -229,16 +232,20 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self._seed_urls:
-            response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
-                article_url = self._extract_url(paragraph)
-                if article_url is None or article_url == '':
-                    continue
-                self.urls.append(article_url)
-                if len(self.urls) >= self._config.get_num_articles():
-                    return
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            future_to_url = {executor.submit(
+                make_request, seed_url, self._config): seed_url for seed_url in self._seed_urls}
+            for future in concurrent.futures.as_completed(future_to_url):
+                _ = future_to_url[future]
+                response = future.result()
+                article_bs = BeautifulSoup(response.text, 'lxml')
+                for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
+                    article_url = self._extract_url(paragraph)
+                    if article_url is None or article_url == '':
+                        continue
+                    self.urls.append(article_url)
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
 
     def get_search_urls(self) -> list:
         """
