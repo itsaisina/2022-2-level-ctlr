@@ -225,7 +225,7 @@ class Crawler:
         if isinstance(href, str) and \
                 href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
             return href
-        return str(href)
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -236,7 +236,7 @@ class Crawler:
             article_bs = BeautifulSoup(response.text, 'lxml')
             for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
                 article_url = self._extract_url(paragraph)
-                if article_url is None:
+                if article_url is None or article_url == '':
                     continue
                 self.urls.append(article_url)
                 if len(self.urls) >= self._config.get_num_articles():
