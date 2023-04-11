@@ -185,13 +185,12 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    wait_time = random.uniform(0.5, 1)
-    time.sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
+    time.sleep(random.uniform(0.5, 0.8))
     return response
 
 
@@ -215,10 +214,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if isinstance(href, str) and \
-                href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
-            return href
-        return ''
+        return href if re.match(r'^https://chelny-izvest\.ru/news/[^/]+/[^/]+$', href) else ''
 
     def find_articles(self) -> None:
         """
@@ -227,13 +223,13 @@ class Crawler:
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
-                article_url = self._extract_url(paragraph)
-                if article_url == '' or article_url in self.urls:
-                    continue
-                self.urls.append(article_url)
+            for elem in article_bs.find_all('a', class_='widget-view-small__head'):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
+                article_url = self._extract_url(elem)
+                if not article_url or article_url in self.urls:
+                    continue
+                self.urls.append(article_url)
 
     def get_search_urls(self) -> list:
         """
