@@ -1,7 +1,6 @@
 """
 Crawler implementation
 """
-import concurrent.futures
 import datetime
 import json
 import random
@@ -104,14 +103,11 @@ class Config:
         """
         config = self._extract_config_content()
 
-        seed_urls = config.seed_urls
-        if not isinstance(seed_urls, list) \
-                or not all(isinstance(url, str) for url in seed_urls):
+        if not isinstance(config.seed_urls, list):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
 
-        for seed_url in seed_urls:
-            if not re.match(r'^https?://w?w?w?.', seed_url) and not seed_url.startswith(
-                    'https://chelny-izvest.ru/news/'):
+        for seed_url in config.seed_urls:
+            if not re.match(r'^https?://.*', seed_url):
                 raise IncorrectSeedURLError("Invalid seed URL in configuration file")
 
         total_articles_to_find_and_parse = config.total_articles
@@ -124,26 +120,21 @@ class Config:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        headers = config.headers
-        if not isinstance(headers, dict):
+        if not isinstance(config.headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
-        encoding = config.encoding
-        if not isinstance(encoding, str):
+        if not isinstance(config.encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
-        timeout = config.timeout
-        if not isinstance(timeout, int) \
-                or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(config.timeout, int) \
+                or config.timeout < TIMEOUT_LOWER_LIMIT or config.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
 
-        should_verify_certificate = config.should_verify_certificate
-        if not isinstance(should_verify_certificate, bool):
+        if not isinstance(config.should_verify_certificate, bool):
             raise IncorrectVerifyError(
                 "Invalid value for should_verify_certificate in configuration file")
 
-        headless_mode = config.headless_mode
-        if not isinstance(headless_mode, bool):
+        if not isinstance(config.headless_mode, bool):
             raise IncorrectVerifyError("Invalid value for headless_mode in configuration file")
 
     def get_seed_urls(self) -> list[str]:
@@ -194,12 +185,13 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    wait_time = random.randrange(1, 2)
+    wait_time = random.uniform(0.5, 1)
     time.sleep(wait_time)
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -232,20 +224,16 @@ class Crawler:
         """
         Finds articles
         """
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_url = {executor.submit(
-                make_request, seed_url, self._config): seed_url for seed_url in self._seed_urls}
-            for future in concurrent.futures.as_completed(future_to_url):
-                _ = future_to_url[future]
-                response = future.result()
-                article_bs = BeautifulSoup(response.text, 'lxml')
-                for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
-                    article_url = self._extract_url(paragraph)
-                    if article_url is None or article_url == '':
-                        continue
-                    self.urls.append(article_url)
-                    if len(self.urls) >= self._config.get_num_articles():
-                        return
+        for seed_url in self._seed_urls:
+            response = make_request(seed_url, self._config)
+            article_bs = BeautifulSoup(response.text, 'lxml')
+            for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
+                article_url = self._extract_url(paragraph)
+                if article_url == '' or article_url in self.urls:
+                    continue
+                self.urls.append(article_url)
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
@@ -272,30 +260,29 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_elements = article_soup.find("div", class_="page-main__text").find_all("p")
+        text_elements = article_soup.select("div.page-main__text p")
         self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find_all('a', class_='page-main__publish-author global-link')[0]
-        authors = [author_elem.get_text(strip=True)] if author_elem else ["NOT FOUND"]
+        author_elem = article_soup.find('div', class_='page-main__publish-data').find(
+            'a', class_='page-main__publish-author global-link')
+        self.article.author = [elem.get_text(strip=True) for elem in author_elem] \
+            if author_elem else ["NOT FOUND"]
 
-        date_elem = article_soup.find_all('a', class_='page-main__publish-date')[0]
+        date_elem = article_soup.find('div', class_='page-main__publish-data').find(
+            'a', class_='page-main__publish-date')
         date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
-        date = self.unify_date_format(date_str)
+        self.article.date = self.unify_date_format(date_str)
 
-        topics_elem = article_soup.find_all('a', class_='panel-group__title global-link')[1]
-        topic = topics_elem.get_text(strip=True) if topics_elem else "NOT FOUND"
+        topic_elem = article_soup.find_all('a', class_='panel-group__title global-link')[1]
+        self.article.topic = topic_elem.get_text(strip=True) if topic_elem else "NOT FOUND"
 
-        title_elem = article_soup.find_all('h1', class_='page-main__head')[0]
-        title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
-
-        self.article.author = authors
-        self.article.date = date
-        self.article.topics = topic
-        self.article.title = title
+        title_elem = article_soup.find('div', class_='page-main').find(
+            'h1', class_='page-main__head')
+        self.article.title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -316,8 +303,7 @@ class HTMLParser:
             "декабря": "December"
         }
         date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
-        date_obj = str(datetime.datetime.strptime(date_str, '%d %B %Y - %H:%M'))
-        return datetime.datetime.strptime(date_obj, '%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.strptime(date_str, '%d %B %Y - %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -388,6 +374,11 @@ def main() -> None:
             to_raw(article)
             to_meta(article)
 
+
+def main_recursive() -> None:
+    """
+    Entrypoint for scrapper module
+    """
     config = Config(CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
     recursive_crawler = CrawlerRecursive(config)
