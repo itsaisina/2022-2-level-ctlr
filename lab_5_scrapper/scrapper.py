@@ -267,21 +267,18 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find('div', {'class': 'page-main__publish-data'}).find(
-            'a', {'class': 'page-main__publish-author global-link'})
+        author_elem = article_soup.find('a', {'class': 'page-main__publish-author global-link'})
         self.article.author = [elem.get_text(strip=True) for elem in author_elem] \
             if author_elem else ["NOT FOUND"]
 
-        date_elem = article_soup.find('div', {'class': 'page-main__publish-data'}).find(
-            'a', {'class': 'page-main__publish-date'})
+        date_elem = article_soup.find('a', {'class': 'page-main__publish-date'})
         date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
         self.article.date = self.unify_date_format(date_str)
 
         topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})[1]
         self.article.topic = topic_elem.get_text(strip=True) if topic_elem else "NOT FOUND"
 
-        title_elem = article_soup.find('div', {'class': 'page-main'}).find(
-            'h1', {'class': 'page-main__head'})
+        title_elem = article_soup.find('h1', {'class': 'page-main__head'})
         self.article.title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
