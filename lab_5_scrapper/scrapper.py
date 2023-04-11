@@ -214,7 +214,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        return href if re.match(r'^https://chelny-izvest\.ru/news/[^/]+/[^/]+$', href) else ''
+        if href.startswith('https://chelny-izvest.ru/news/') and href.count('/') == 5:
+            return href
+        return ''
 
     def find_articles(self) -> None:
         """
