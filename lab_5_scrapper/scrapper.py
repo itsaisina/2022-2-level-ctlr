@@ -3,6 +3,8 @@ Crawler implementation
 """
 import datetime
 import json
+import os
+import pickle
 import random
 import re
 import shutil
@@ -190,7 +192,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
                             timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
-    time.sleep(random.uniform(0.5, 0.8))
+    time.sleep(random.uniform(0.5, 1))
     return response
 
 
@@ -333,27 +335,43 @@ class CrawlerRecursive(Crawler):
         """
         super().__init__(config)
         self.start_url = self.get_search_urls()[0]
-        self.visited_urls = set()
+        self.state_file = os.path.join(os.getcwd(), 'crawler_state.pkl')
+        if os.path.exists(self.state_file):
+            self.load_state()
 
     def find_articles(self) -> None:
         """
         Finds articles recursively starting from the given URL
         """
-        if len(self.visited_urls) >= self._config.get_num_articles():
-            return
         response = make_request(self.start_url, self._config)
         article_bs = BeautifulSoup(response.text, 'lxml')
-        for paragraph in article_bs.find_all('a', class_='widget-view-small__head'):
-            article_url = self._extract_url(paragraph)
-            if article_url is None or 'http' not in article_url:
-                continue
-            if article_url in self.visited_urls:
+        for elem in article_bs.find_all('a', class_='widget-view-small__head'):
+            if len(self.urls) >= self._config.get_num_articles():
+                self.save_state()
                 return
-            self.visited_urls.add(article_url)
+            article_url = self._extract_url(elem)
+            if not article_url or 'http' not in article_url or article_url in self.urls:
+                continue
             self.urls.append(article_url)
-            if len(self.visited_urls) < self._config.get_num_articles():
-                self.start_url = article_url
-                self.find_articles()
+            self.start_url = article_url
+            self.save_state()
+            self.find_articles()
+
+    def save_state(self) -> None:
+        """
+        Saves the state of the crawler to a file
+        """
+        with open(self.state_file, 'wb') as f:
+            pickle.dump({'urls': self.urls, 'start_url': self.start_url}, f)
+
+    def load_state(self) -> None:
+        """
+        Loads the state of the crawler from a file
+        """
+        with open(self.state_file, 'rb') as f:
+            state = pickle.load(f)
+            self.urls = state['urls']
+            self.start_url = state['start_url']
 
 
 def main() -> None:
@@ -390,3 +408,4 @@ def main_recursive() -> None:
 
 if __name__ == "__main__":
     main()
+    main_recursive()
