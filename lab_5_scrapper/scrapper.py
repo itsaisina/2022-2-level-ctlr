@@ -215,7 +215,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if href is not None \
+        if isinstance(href, str) \
                 and href.startswith('https://chelny-izvest.ru/news/') \
                 and href.count('/') == 5:
             return href
