@@ -3,7 +3,8 @@
 ## <a name="faq-scrapper"></a>Lab №5 - Scrapper
 
 <details>
-    <summary><b>I can open my website using browser, but I cannot connect to it via python and get 200 response code.</b></summary>
+    <summary><b>I can open my website using browser, but I cannot connect to it 
+    via python and get 200 response code.</b></summary>
     <br>
     <p>
 The golden rule goes as follows: if you can connect to the website with your 
@@ -20,7 +21,9 @@ seconds in between requests. Experimenting with those settings should do the tri
 <br>
 
 <details>
-    <summary><b>I can successfully connect to my source via requests by running <code>scrapper.py</code>, but connection cannot be established when running tests.</b></summary>
+    <summary><b>I can successfully connect to my source via requests by running 
+    <code>scrapper.py</code>, but connection cannot be established when running tests.
+    </b></summary>
     <br>
     <p>
 In case in <code>scrapper.py</code> you feed <code>requests.get()</code> any extra headers or cookies,
@@ -36,7 +39,8 @@ there, it is allowed.
 <br>
 
 <details>
-    <summary><b>During execution of scrapper, error 404 NOT FOUND arises, although seed URLs include valid links only.</b></summary>
+    <summary><b>During execution of scrapper, error 404 NOT FOUND arises, 
+    although seed URLs include valid links only.</b></summary>
     <br>
     <p>
 This usually happens when the link that is fed to <code>requests.get()</code> is constructed
@@ -48,10 +52,12 @@ For instance, [this](https://www.nn.ru/text/gorod/2022/05/01/71301596/) `nn.ru`
 article contains the following link in its HTML 
 source: `/text/gorod/2022/05/01/71300711/`. Before you try to follow it, you have 
 to restore it to its full format by adding a protocol `https://` and a website 
-root `nn.ru`. As a result, you will get a full link `https://nn.ru/text/gorod/2022/05/01/71300711/`, which can be safely 
+root `nn.ru`. As a result, you will get a full link 
+`https://nn.ru/text/gorod/2022/05/01/71300711/`, which can be safely 
 fed to `requests.get()`. Also, sometimes students overdo it and try to restore 
-already full-formatted links, getting something like `https://https://nn.ru`, which is obviously also 
-invalid. All in all, pay attention to what kind of URLs you pass to your `requests.get()`.
+already full-formatted links, getting something like `https://https://nn.ru`, 
+which is obviously also invalid. All in all, pay attention to what kind of URLs 
+you pass to your `requests.get()`.
     </p>
 </details>
 
@@ -129,7 +135,8 @@ malfunction.
 <br>
 
 <details>
-    <summary><b>When I push my code, I get <code>ModuleNotFoundError</code> in CI, yet locally everything works fine.</b></summary>
+    <summary><b>When I push my code, I get <code>ModuleNotFoundError</code> in CI, 
+    yet locally everything works fine.</b></summary>
     <br>
     <p>
 Make sure you have listed all the required libraries that your program needs in

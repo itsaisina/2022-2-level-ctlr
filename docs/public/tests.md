@@ -8,7 +8,8 @@
 
 ## <a name="tests-locally"></a>Running tests locally
 
-Before pushing your changes to a remote fork, you will want to check that your code is working correctly. 
+Before pushing your changes to a remote fork, you will want to check that your code is working 
+correctly. 
 To do this, you can run tests locally.
 
 > **HINT:** If you extract articles URLs from dynamic site, 
@@ -25,27 +26,27 @@ To run tests locally, you need to perform several steps in PyCharm:
 2. Create a new configuration:
 
 
-   ![](../images/tests/pycharm_create_configuration.png)
+   ![create configuration](../images/tests/pycharm_create_configuration.png)
 
 3. Choose `pytest` as a target:
 
 
-   ![](../images/tests/pycharm_choose_pytest_template.png)
+   ![choose pytest template](../images/tests/pycharm_choose_pytest_template.png)
 
 4. Fill `pytest` configuration and click `OK`:
 
 
-   ![](../images/tests/pycharm_fill_pytest_configuration.png)
+   ![fill pytest configuration](../images/tests/pycharm_fill_pytest_configuration.png)
 
 5. Run `pytest` configuration:
 
 
-   ![](../images/tests/pycharm_run_pytest.png)
+   ![run pytest](../images/tests/pycharm_run_pytest.png)
    
    This should run all the tests in the repository. You can inspect them by clicking through a list
    at the bottom of a screen.
 
-   ![](../images/tests/pycharm_tests_report.png)
+   ![tests report](../images/tests/pycharm_tests_report.png)
 
 6. As you have some tests failing, you want to debug them. Then, first, you need to limit
    a scope of running tests and the mark level you want to get for an assignment. For example,
@@ -53,17 +54,19 @@ To run tests locally, you need to perform several steps in PyCharm:
    to configuration menu and pass additional parameters, like `-m stage_2_1_crawler_config_check`.
    
 
-   ![](../images/tests/pycharm_control_tests_scope.png)
+   ![control tests scope](../images/tests/pycharm_control_tests_scope.png)
    
    You can choose any of the labels that are described in [`../pyproject.toml`](../../pyproject.toml)
    and combine with a mark. For example, running the aforementioned check for configuration for a
    mark 8 will look like `-m "mark8 and stage_2_1_crawler_config_check"`. 
 
 > **HINT:** To running all tests for first assignment for mark 8: 
-> `-m "mark8 and (stage_2_1_crawler_config_check or stage_2_2_crawler_check or stage_2_3_HTML_parser_check or stage_2_4_dataset_volume_check or stage_2_5_dataset_validation)"`
+> `-m "mark8 and (stage_2_1_crawler_config_check or stage_2_2_crawler_check or 
+> stage_2_3_HTML_parser_check or stage_2_4_dataset_volume_check or 
+> stage_2_5_dataset_validation)"`
 
-> **HINT:** When you want to debug a test, instead of running them, put a breakpoint at the potentially vulnerable
-> place of code and execute debugging by clicking a 'bug' button.
+> **HINT:** When you want to debug a test, instead of running them, put a breakpoint at 
+> the potentially vulnerable place of code and execute debugging by clicking a 'bug' button.
 
 
 ## <a name="tests-in-ci"></a>Running tests in CI
@@ -76,9 +79,9 @@ CI check will be automatically started, normally within a minute or two. To see 
 navigate to your PR and click either the particular step in the report at the end of a page,
 or click **Checks** in the toolbar. 
 
-![](../images/tests/ci_report.png)
+![ci report](../images/tests/ci_report.png)
 
-![](../images/tests/ci_tab.png)
+![ci tab](../images/tests/ci_tab.png)
 
 Inspect each step by clicking through the list to the left.
 

@@ -16,9 +16,8 @@ Core utils contents:
 ## Article package
 
 The `article` package is responsible for handling the articles you have collected from your website.
-You are going to use it for both laboratory №5 and laboratory №6.
-
-Exhaustive guide is located [here](article.md).
+You are going to use it for both laboratory №5 and laboratory №6. 
+See [exhaustive guide](article.md) for this package.
 
 ## Tools package
 
@@ -47,43 +46,50 @@ According to this abstraction, configuration parameters are as follows:
 * `verify_certificate`: a boolean value
 * `headless_mode`: a boolean value
 
-They match the fields of the [`scrapper_config.json`](../../lab_5_scrapper/scrapper_config.json) configuration file.
-For more details on what each of the parameters presents, refer to 
+They match the fields of the [`scrapper_config.json`](../../lab_5_scrapper/scrapper_config.json) 
+configuration file. For more details on what each of the parameters presents, refer to 
 [the laboratory 5 guide](../../lab_5_scrapper/README.md#configuring-scrapper).
 
-> **NOTE**: During implementation of laboratory №5, make sure to return a `ConfigDTO` instance from the 
-`Config._extract_config_content` method. 
+> **NOTE**: During implementation of laboratory №5, make sure to return a `ConfigDTO` 
+> instance from the `Config._extract_config_content` method. 
 
 ## Module with constants
 
 [`constance.py`](../../core_utils/constants.py) module defines the following constant values:
 
 * `PROJECT_ROOT`: a path to [`2022-2-level-ctlr`](../..) folder, which the root of the current project
-* `ASSETS_PATH`: a path to [`2022-2-level-ctlr/tmp/article`](../../tmp/articles) folder, where all the collected articles must be stored
-* `CRAWLER_CONFIG_PATH`: a path to the [`scrapper_config.json`](../../lab_5_scrapper/scrapper_config.json) file with configuration parameters for scrapper
-* `NUM_ARTICLES_UPPER_LIMIT`: a maximum number for articles to be collected, anything above this number must be considered invalid
-* `TIMEOUT_LOWER_LIMIT`: a minimum number of seconds for a timeout, anything below this number must be considered invalid
-* `TIMEOUT_UPPER_LIMIT`: a maximum number of seconds for a timeout, anything above this number must be considered invalid
+* `ASSETS_PATH`: a path to [`2022-2-level-ctlr/tmp/article`](../../tmp/articles) folder, where all 
+the collected articles must be stored
+* `CRAWLER_CONFIG_PATH`: a path to the 
+[`scrapper_config.json`](../../lab_5_scrapper/scrapper_config.json) file with configuration 
+parameters for scrapper
+* `NUM_ARTICLES_UPPER_LIMIT`: a maximum number for articles to be collected, anything above 
+this number must be considered invalid
+* `TIMEOUT_LOWER_LIMIT`: a minimum number of seconds for a timeout, anything below this number 
+must be considered invalid
+* `TIMEOUT_UPPER_LIMIT`: a maximum number of seconds for a timeout, anything above this number 
+must be considered invalid
 
 > **NOTE**: Can you tell why the folder for articles is located in the directory with the name `tmp`?
 
-> **NOTE**: Make sure to import these constants from the `constant.py` module and use them whenever you need
-> to specify a path or boundary values (for example, when validating configuration values)
-
+> **NOTE**: Make sure to import these constants from the `constant.py` module and use them 
+> whenever you need to specify a path or boundary values (for example, when validating 
+> configuration values).
 
 ## Visualizer module 
 
 As a final part of laboratory №6, students are expected to perform an analysis of distribution of part-of-speech
 tags in the processed collected articles. This is where [`visualizer.py` module](../../core_utils/visualizer.py)
-comes into play. Its `visuzalize` function takes an `Article` instance along with a path and creates a graph depicting 
-POS distribution in the specified location.
+comes into play. Its `visuzalize` function takes an `Article` instance along with a path and 
+creates a graph depicting POS distribution in the specified location.
 
-Before calling it, make sure you have already filled the `pos_frequencies` field of the corresponding meta file
-during [`POSFrequencyPipeline`](../../lab_6_pipeline/pos_frequency_pipeline.py) execution.
+Before calling it, make sure you have already filled the `pos_frequencies` field of 
+the corresponding meta file during 
+[`POSFrequencyPipeline`](../../lab_6_pipeline/pos_frequency_pipeline.py) execution.
 
-> **NOTE**: `visualize` function must be called during the execution of `POSFrequencyPipeline.run` method
+> **NOTE**: `visualize` function must be called during the execution of `POSFrequencyPipeline.run` method.
 
-> **NOTE**: the name of the resulting image must have the same id as the article analysed.
+> **NOTE**: The name of the resulting image must have the same id as the article analysed.
 
 ## Tests package
 
@@ -96,6 +102,3 @@ The [tests](../../core_utils/tests) package contains a number of unit-tests for
 During work on laboratory №5 and laboratory №6, you do not need to interact with these tests.
 However, should you suspect that the provided modules behave unexpectedly, examination of these tests
 may help catch the bug. Any suggestion on improvements of core utils is encouraged and rewarded.  
-
-
-

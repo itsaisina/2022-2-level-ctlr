@@ -5,8 +5,10 @@ and save in a `conllu` file. Here you will learn what Mystem and PyMorphy tags l
 how to convert them to the UD format and what should `conllu` file structure look like.
 
 > **NOTE**: UD (Universal Dependencies) is a framework for consistent annotation of grammar 
-> (parts of speech, morphological features, and syntactic dependencies) across different human languages.
-> All this annotation is usually stored in a format called `CONLL-U`, that is a vertical, table-like format.
+> (parts of speech, morphological features, and syntactic dependencies) across different 
+> human languages.
+> All this annotation is usually stored in a format called `CONLL-U`, that is a vertical, 
+> table-like format.
 
 * [Mystem and PyMorphy to UD](#mystem-pymorphy-to-ud)
     * [UD](#ud)
@@ -29,10 +31,12 @@ You need to convert the following features:
 * Animacy 
 * Tense
 
-As different parts of speech have different tags (for example: **verbs** have **tense** while **nouns** do not), 
+As different parts of speech have different tags (for example: **verbs** have **tense** while 
+**nouns** do not), 
 it is important to make the parsing per part of speech.
 
-To convert them from one system to another, it is necessary to understand how each system is structured.
+To convert them from one system to another, it is necessary to understand how each system is 
+structured.
 
 ### <a name="ud"></a>UD
 
@@ -54,7 +58,8 @@ For example:
 
 ### <a name="mystem"></a>Mystem
 
-The `pymystem3` library is a wrapper around Mystem for Python. It provides the morphological analysis 
+The `pymystem3` library is a wrapper around Mystem for Python. It provides the morphological 
+analysis 
 for the language tokens. 
 
 > **NOTE**: The list of all tags used in Mystem is available on 
@@ -75,20 +80,25 @@ The specific structure varies based on the part of speech, see examples below:
 * Pronoun-Adjective: `APRO=(пр,мн|дат,мн|род,мн|твор,мн|им,мн|им,ед,жен|вин,ед,муж,од|род,ед,муж|род)`
 * Numeral: `NUM=(им|вин,неод)`
 * Pronoun: `SPRO,ед,3-л,жен=им` OR `SPRO,ед,3-л,жен=(дат|твор)`
-* Particle, preposition, interjection, conjunction, part of a compound word, adverb, pronominal adverb: 
+* Particle, preposition, interjection, conjunction, part of a compound word, adverb, pronominal 
+   adverb: 
 `PART=`, `PR=`, `INTJ=`, `CONJ=`, `COM=`, `ADV=`, `ADVPRO=` respectively
 
->**HINT**: For the mark 8 (when you have to fill the FEATS field information in the resulting .conllu file) 
-> there is no need to process `PART`, `PR`, `INTJ`, `CONJ`, `COM`, `ADVPRO`, `ADV` as they only have POS.
+>**HINT**: For the mark 8 (when you have to fill the FEATS field information in the resulting 
+> .conllu file) 
+> there is no need to process `PART`, `PR`, `INTJ`, `CONJ`, `COM`, `ADVPRO`, `ADV` as they 
+> only have POS.
 
-As it is seen from the examples above, the number of features can be different even for the same part of speech: 
+As it is seen from the examples above, the number of features can be different even for the 
+same part of speech: 
 compare `S,жен,од=им,ед` and `S,сокр=(пр,мн|пр,ед|вин,мн|вин,ед|дат,мн|дат,ед)`.
 This fact should be kept in mind while parsing the morphological features.
 
 > **NB**: For the sake of simplicity, only the first possible set of features is considered.
 > For example, in this set of features`(вин,ед|род,ед)` you should consider this one `вин,ед`
 
-> **HINT**: As the pymystem3 returns these morphological features as a string, there is nothing left but 
+> **HINT**: As the pymystem3 returns these morphological features as a string, there is nothing 
+> left but 
 > to parse it by delimiters (`,=|()`) or find more elegant way.
 
 Let's parse `S,муж,од=(вин,ед|род,ед)` to the UD format. 
@@ -106,7 +116,8 @@ the resulting string for our example would be:
 PyMorphy uses the tags from OpenCorpora. The list of all tags is available on 
 the [OpenCorpora Website](http://opencorpora.org/dict.php?act=gram&order=priority).
 
-As the `pymorphy2` returns these morphological features as an instance of the `OpencorporaTag` class, 
+As the `pymorphy2` returns these morphological features as an instance of the `OpencorporaTag` 
+class, 
 it is possible to access its attributes to extract the information.
 
 Available attributes for `OpencorporaTag` are:
@@ -123,7 +134,8 @@ Available attributes for `OpencorporaTag` are:
 * `transitivity`
 * `voice`
 
-They can be accessed as, for example, `tags.animacy` where `tags` is an instance of the `OpencorporaTag` class.
+They can be accessed as, for example, `tags.animacy` where `tags` is an instance of the 
+`OpencorporaTag` class.
 
 Let's parse `OpencorporaTag('NOUN,anim,masc sing,nomn')` to the UD format. 
 As the morphological features in the UD format are structured as following: 
@@ -141,27 +153,9 @@ After processing your articles and converting Mystem and PyMorphy tags to the UD
 you should save your annotated data in a `conllu` file.
 
 Let's look at an example of a `conllu` file that should work for you. 
-It is a subset of a file from [this repository](https://github.com/UniversalDependencies/UD_Russian-SynTagRus). 
+It is a subset of a file from 
+[this repository](https://github.com/UniversalDependencies/UD_Russian-SynTagRus). 
 File with example text can be found [here](lab_6_pipeline/data/ud_test.conllu).
-
-   ```
-   # sent_id = 2003Armeniya.xml_1
-   # text = В советский период времени число ИТ- специалистов в Армении составляло около десяти тысяч.
-   1	В	в	ADP	_	_	3	case	3:case	_
-   2	советский	советский	ADJ	_	Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	3	amod	3:amod	_
-   3	период	период	NOUN	_	Animacy=Inan|Case=Acc|Gender=Masc|Number=Sing	11	obl	11:obl:в:acc	_
-   4	времени	время	NOUN	_	Animacy=Inan|Case=Gen|Gender=Neut|Number=Sing	3	nmod	3:nmod:gen	_
-   5	число	число	NOUN	_	Animacy=Inan|Case=Acc|Gender=Neut|Number=Sing	11	obj	11:obj	_
-   6	ИТ	ИТ	PROPN	_	Animacy=Inan|Case=Nom|Gender=Neut|Number=Sing	8	compound	8:compound	SpaceAfter=No
-   7	специалистов	специалист	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Plur	5	nmod	5:nmod:gen	_
-   8	в	в	ADP	_	_	10	case	10:case	_
-   9	Армении	Армения	PROPN	_	Animacy=Inan|Case=Loc|Gender=Fem|Number=Sing	5	nmod	5:nmod:в:loc	_
-   10	составляло	составлять	VERB	_	Aspect=Imp|Gender=Neut|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act	0	root	0:root	_
-   11	около	около	ADP	_	_	14	case	14:case	_
-   12	десяти	десять	NUM	_	Case=Gen|NumType=Card	14	nummod	14:nummod	_
-   13	тысяч	тысяча	NOUN	_	Animacy=Inan|Case=Gen|Gender=Fem|Number=Plur	11	nsubj	11:nsubj	SpaceAfter=No
-   14	.	.	PUNCT	_	_	11	punct	11:punct	_
-   ```
 
 It has the following structure, where each "column" is responsible for:
 1. **ID**: Word index, integer starting at 1 for each new word in the sentence.
@@ -171,7 +165,8 @@ It has the following structure, where each "column" is responsible for:
 5. **XPOS**: Language-specific POS tag. 
    1. **NB**: mark as `_` as we do not use it.
 6. **FEATS**: List of morphological features structured as 
-`FeatureName=Value|FeatureName=Value|FeatureName=Value...` as per UD format; mark as `_` if not available.
+   `FeatureName=Value|FeatureName=Value|FeatureName=Value...` as per UD format; 
+   mark as `_` if not available.
 7. **HEAD**: Head of the current word. 
    1. **NB**: mark as `0` as we do not use it.
 8. **DEPREL**: Universal dependency relation to the HEAD. 

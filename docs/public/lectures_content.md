@@ -2,15 +2,15 @@
 
 ## Lecture 1. Introduction to technical track
 
-Web scraping as a craft. Place of technical track in overall discipline: conceptually and 
+Web scraping as a craft. Place of technical track in overall discipline: conceptually and
 assessment formula.
 Technical track overview. Programming assignment overview. Client-server architecture in 
-World Wide Web. 
+World Wide Web.
 Types of `HTTP` methods: `GET`, `POST`, `DELETE`, `PUT`. Request. Response.
 
 ## Seminar 1. 3rd party libraries
 
-Python package manager `pip`. `requirements.txt` as a manifest of project dependencies. 
+Python package manager `pip`. `requirements.txt` as a manifest of project dependencies.
 Library `requests` for sending
 requests to server. `requests.get` to get `html` code of a page.
 
@@ -41,3 +41,11 @@ file in `JSON` format. Basic API: `dump` and `load`. Advanced parameters: indent
 paths with forward slash. Recommendation to build paths based on `__file__` global variable.
 Basic API: `exists`, `glob`, `mkdir`. Removal of directories: `rmdir` versus `shutil.rmtree`.
 Removal of files: `unlink`.
+
+## Lecture 4. Working with dates via `datetime`
+
+Date management as one of most challenging tasks in data analysis. 
+Module `datetime` to process dates. Basic API: `datetime` class, static methods
+`strftime` for formatting dates and `strptime` for parsing them from string. 
+Special directives to construct pattern string to parse. Necessity in additional processing of 
+raw date before parsing due to some `locale` requirements.

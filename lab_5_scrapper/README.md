@@ -48,15 +48,35 @@ Scrapper behavior is fully defined by a configuration file that is called `scrap
 and it is placed at the same level as `scrapper.py`. It is JSON file, simply speaking it is a 
 set of key-value pairs.
 
-|Config parameter|Description| Possible values                                                                                                                                                                                                                                                                                                              |
-|:---|:---|:------------------------------------------------------------------|
-|`seed_urls`| Entry points for crawling. Can contain several URLs as there is no guarantee that there will be enough article links on a single page| A list of URLs, for example `["https://www.nn.ru/text/?page=2", "https://www.nn.ru/text/?page=3"]`                                                                                                                                                                                                                           |
-|`headers`| Headers let you pass additional information within request to the web page. Usually they help to identify your program as real browser and get access to the site. They are not obligatory, but if you face troubles sending request to the web page, you may need to use headers. | Headers are represented as string with the following format, for example `{'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'}`. **Hint:** you may find special websites that generate headers appropriate for you computer and web browser. |
-|`total_articles_to_find_and_parse`|Number of articles to parse| Integer values, should potentially work for at least `100` papers, but must not be greater than `150`                                                                                                                                                                                                                        |
-|`encoding`| This parameter specifies encoding for the response received by the web page you request. | This is a string, for example `utf-8`.                                                                                                                                                                                                                                                                                       |
-|`timeout`| The amount of time you wait for a response from your web page. If the page does not respond in the specified time, an exception will be received.| This is a positive integer less than 60, for example `5`.                                                                                                                                                                                                                                                                    |
-|`should_verify_certificate`| Parameter that enables or disables the security certificate check of your requests to the page. Disable it if you cannot pass web page security certification. | It is a boolean value, for example `true`.                                                                                                                                                                                                                                                                                   |
-|`headless_mode`| This parameter enables or disables headless mode and is appropriate only for dynamic websites crawling. **Note:** You may set it to `true` to see how you program interacts with website, but make sure you disable it before pushing your changes to GitHub. | It is a boolean value, for example `false`.                                                                                                                                                                                                                                                                                  |
+
+| Config parameter                    | Description                                      | Type   |
+|:------------------------------------|:-------------------------------------------------|:-------|
+| `seed_urls`                         | Entry points for crawling.                       | `list` |
+|                                     | Can contain several URLs as there is             |        |
+|                                     | no guarantee that                                |        |
+|                                     | there will be enough article                     |        |
+|                                     | links on a single page                           |        |
+|                                     | For example, `["https://www.nn.ru/text/?page=2",`|        |
+|                                     | `"https://www.nn.ru/text/?page=3"]`              |        |
+| `headers`                           | Headers let you pass additional information      | `dict` |
+|                                     | within request to the web page.                  |        |
+|                                     | For example, `{"user-agent": "Mozilla/5.0"}`     |        |
+| `total_articles_to_find_and_parse`  | Number of articles to parse                      | `int`  |
+|                                     | Range: `0<x<=150`                                |        |
+| `encoding`                          | This parameter specifies encoding for the        | `str`  |
+|                                     | response received by the web page you request.   |        |
+|                                     | For example, `utf-8`.                            |        |
+| `timeout`                           | The amount of time you wait for a response       | `int`  |
+|                                     | Range: `0<x<=60`.                                |        |
+|                                     | from your web page. If the page does not         |        |
+|                                     | respond in the                                   |        |
+|                                     | specified time, an exception will be received.   |        |
+| `should_verify_certificate`         | Parameter that enables or disables the           | `bool` |
+|                                     | security certificate check of your requests      |        |
+|                                     | to the page. Disable it if you cannot pass       |        |
+|                                     | web page security certification.                 |        |
+|                                     | For example, `true` or `false`.                  |        |
+| `headless_mode`                     | Not used.                                        |        |
 
 > NOTE: `seed_urls` and `total_articles_to_find_and_parse` are used in `Crawler` 
 > abstraction. `headers`, `encoding`, `timeout`, `should_verify_certificate` 
@@ -469,7 +489,8 @@ As before, such settings are specified in the config file.
 > articles in your dataset. 100 is a required number of papers for the final part of the
 > course.
 
-### Stage 9. Turn your crawler into a real recursive crawler (Stages 0-9 are required to get the mark 10)
+### Stage 9. Turn your crawler into a real recursive crawler 
+#### (Stages 0-9 are required to get the mark 10)
 
 Crawlers used in production or even just for collection of documents from a website should be 
 much more robust and tricky than what you have implemented during the previous steps. To name

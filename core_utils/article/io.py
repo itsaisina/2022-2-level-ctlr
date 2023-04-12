@@ -81,13 +81,16 @@ def from_meta(path: Union[Path, str],
 
 
 def to_conllu(article: Article,
-              include_morphological_tags: bool = False) -> None:
+              include_morphological_tags: bool = False,
+              include_pymorphy_tags: bool = False) -> None:
     """
     Saves conllu information from the Article into the .conllu file
     """
     article_type = ArtifactType.POS_CONLLU
     if include_morphological_tags:
         article_type = ArtifactType.MORPHOLOGICAL_CONLLU
+    if include_pymorphy_tags:
+        article_type = ArtifactType.FULL_CONLLU
 
     with open(file=article.get_file_path(article_type),
               mode='w',

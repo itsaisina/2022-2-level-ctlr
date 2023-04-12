@@ -28,7 +28,7 @@
             "enabled": false
         },
         "md010": {
-            "enabled": true
+            "enabled": false
         },
         "md011": {
             "enabled": true
@@ -37,7 +37,7 @@
             "enabled": false
         },
         "md013": {
-            "enabled": false,
+            "enabled": true,
             "line_length": 100,
             "heading_line_length": 100,
             "code_block_line_length": 100
@@ -100,7 +100,7 @@
             "enabled": false
         },
         "md033": {
-            "enabled": true
+            "enabled": false
         },
         "md034": {
             "enabled": true

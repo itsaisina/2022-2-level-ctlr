@@ -21,6 +21,8 @@ elif [[ ${TARGET_SCORE} == 8 ]]; then
 else
   echo "Running score ten checks"
   python -m pytest -m "mark8 and stage_3_4_admin_data_processing" --capture=no
+  python -m pytest -m "mark10 and stage_3_6_advanced_morphological_processing" --capture=no
+
   echo "TODO: check for PosFrequencyPipeline"
   echo "TBD: later"
 fi

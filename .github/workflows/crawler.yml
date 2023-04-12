@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
-
 env:
   IMPLEMENTATION_TYPE: html
   REPOSITORY_TYPE: public
@@ -24,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Confirming everything is OK
         run: |
           ls -la ~/.local/bin
@@ -39,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Dependencies check
         run: |
           bash config/stage_1_style_tests/_stage_requirements_check.sh
@@ -57,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: PR name check
         run: |
           bash config/stage_1_style_tests/_stage_pr_name_check.sh "$PR_NAME" "$PR_AUTHOR"
@@ -65,7 +61,7 @@ jobs:
   code-style:
     name: Code Style
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     needs: [ install-dependencies ]
     env:
       PR_NAME: ${{ github.event.pull_request.title }}
@@ -74,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Code Style
         run: |
           bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
@@ -88,7 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Pymarkdownlnt check
         run: |
           bash config/stage_1_style_tests/_stage_run_pymarkdownlnt.sh
@@ -102,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: MyPy check
         run: |
           bash config/stage_1_style_tests/_stage_run_mypy.sh
@@ -110,13 +106,13 @@ jobs:
   flake8-checks:
     name: Import style checks
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     needs: [ install-dependencies ]
 
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Flake8 check
         run: |
           bash config/stage_1_style_tests/_stage_run_flake8.sh
@@ -132,7 +128,7 @@ jobs:
         run: |
           sudo apt-get install aspell aspell-en aspell-ru
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Spell check
         run: |
           bash config/spellcheck/_stage_spellcheck.sh
@@ -151,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Run crawler config checks
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
@@ -170,7 +166,7 @@ jobs:
         run: |
           sudo apt-get install aspell aspell-en aspell-ru
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Stubgen check
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
@@ -193,7 +189,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Run crawler config checks
         run: |
           bash config/stage_2_crawler_tests/_stage_check_crawler_config.sh "$PR_NAME" "$PR_AUTHOR"
@@ -215,7 +211,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Run crawler config checks
         run: |
           bash config/stage_2_crawler_tests/_stage_crawler_checks.sh "$PR_NAME" "$PR_AUTHOR"
@@ -236,7 +232,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Run crawler config checks
         run: |
           bash config/stage_2_crawler_tests/_stage_parser_checks.sh "$PR_NAME" "$PR_AUTHOR"
@@ -257,7 +253,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Crawl a raw dataset from web
         run: |
           bash config/stage_2_crawler_tests/_stage_collect_articles.sh "$PR_NAME" "$PR_AUTHOR"
@@ -281,7 +277,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -305,7 +301,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -320,7 +316,7 @@ jobs:
     name: Starting pipeline checks!
     needs: [ milestone-1-crawler-is-working ]
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     steps:
       - name: Congratulations
         run: |
@@ -340,7 +336,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -363,7 +359,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -386,7 +382,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -409,7 +405,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -432,7 +428,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -463,7 +459,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -493,7 +489,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -517,7 +513,7 @@ jobs:
       running-pos-pipeline-tests
     ]
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     steps:
       - name: Congratulations
         run: |
@@ -532,7 +528,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.4
+        uses: fipl-hse/setup-env-action@v0.5
       - name: Download previously collected dataset
         continue-on-error: true
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}

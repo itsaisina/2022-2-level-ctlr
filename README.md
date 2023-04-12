@@ -51,6 +51,7 @@ Instructors:
 | 24.03.2022 | **Seminar:** Headers and introduction to `bs4`. | [Listing][12]                |
 | 03.04.2022 | **Lecture:** Access file system via `pathlib`.  | [Listing][13], [Listing][14] |
 | 07.04.2022 | **Seminar:** Early version of `HTMLParser`.     | [Listing][15]                |
+| 10.04.2022 | **Lecture:** Working with dates via `datetime`. | [Listing][16]                |
 
 You can find a more complete summary from lectures as a 
 [list of topics](./docs/public/lectures_content.md). 
@@ -58,14 +59,16 @@ You can find a more complete summary from lectures as a
 
 ## Technical solution
 
-| Module                | Description                              | Component | Need to get |
-|:----------------------|:-----------------------------------------|:----------|:------------|
-| [`pathlib`][1]        | working with file paths                  | scrapper  | 4           |
-| [`requests`][2]       | downloading web pages                    | scrapper  | 4           |
-| [`BeautifulSoup4`][3] | finding information on web pages         | scrapper  | 4           |
-| [`lxml`][4]           | **Optional** parsing HTML                | scrapper  | 6           |
-| [`selenium`][5]       | **Optional** processing dynamic websites | scrapper  | 10          |
-| [`pymystem3`][6]      | module for morphological analysis        | pipeline  | 6           |
+| Module                | Description                        | Component          | Need to get |
+|:----------------------|:-----------------------------------|:-------------------|:------------|
+| [`pathlib`][1]        | working with file paths            | scrapper           | 4           |
+| [`requests`][2]       | downloading web pages              | scrapper           | 4           |
+| [`BeautifulSoup4`][3] | finding information on web pages   | scrapper           | 4           |
+| [`lxml`][4]           | **Optional** parsing HTML          | scrapper           | 6           |
+|  `datetime`           | working with dates                 | scrapper           | 6           |
+|  `json`               | working with json text format      | scrapper, pipeline | 4           |
+| [`pymystem3`][5]      | module for morphological analysis  | pipeline           | 6           |
+| [`pymorphy2`][6]      | module for morphological analysis  | pipeline           | 10          |
 
 Software solution is built on top of three components:
 1. [`scrapper.py`](./lab_5_scrapper/scrapper.py) - a module for finding articles 
@@ -116,13 +119,14 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 1. Scrapping tutorials: [YouTube series (russian)](https://youtu.be/7hn1_t2ZtJQ)
 1. [HOWTO: Set up your fork](./docs/public/starting_guide.md)
 1. [HOWTO: Running tests](./docs/public/tests.md)
+1. [HOWTO: Running assignments in terminal](./docs/public/run_in_terminal.md)
 
 [1]: https://pypi.org/project/pathlib/
-[2]: https://pypi.org/project/requests/
-[3]: https://pypi.org/project/beautifulsoup4/
+[2]: https://pypi.org/project/requests/2.25.1/
+[3]: https://pypi.org/project/beautifulsoup4/4.11.1/
 [4]: https://pypi.org/project/lxml/
-[5]: https://pypi.org/project/selenium/
-[6]: https://pypi.org/project/pymystem3/
+[5]: https://pypi.org/project/pymystem3/
+[6]: https://pypi.org/project/pymorphy2/
 [7]: ./lab_5_scrapper/README.md
 [8]: ./seminars/seminar_03_20_2023/try_requests.py
 [9]: https://docs.google.com/spreadsheets/d/19DS6F6_NrgjGbLUjFm9-REuuaECvApEW_o4pHvaXyLQ
@@ -132,3 +136,4 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 [13]: ./seminars/seminar_04_03_2023/try_json.py
 [14]: ./seminars/seminar_04_03_2023/try_fs.py
 [15]: ./seminars/seminar_04_07_2023/try_html_parser.py
+[16]: ./seminars/seminar_04_10_2023/try_dates.py

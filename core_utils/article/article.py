@@ -65,6 +65,7 @@ class ArtifactType(enum.Enum):
     CLEANED = 'cleaned'
     MORPHOLOGICAL_CONLLU = 'morphological_conllu'
     POS_CONLLU = 'pos_conllu'
+    FULL_CONLLU = 'full_conllu'
 
 
 class Article:
@@ -90,7 +91,7 @@ class Article:
 
     def set_pos_info(self, pos_freq: dict) -> None:
         """
-        Adds POS information in meta file
+        Sets POS frequencies attribute
         """
         self.pos_frequencies = pos_freq
 
@@ -155,7 +156,7 @@ class Article:
 
     def get_meta_file_path(self) -> Path:
         """
-        Returns path for requested raw article
+        Returns path for requested article
         """
         meta_file_name = f"{self.article_id}_meta.json"
         return ASSETS_PATH / meta_file_name
@@ -166,7 +167,9 @@ class Article:
         kind: variant of a file -- ArtifactType
         """
 
-        conllu = kind in (ArtifactType.POS_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
+        conllu = kind in (ArtifactType.POS_CONLLU,
+                          ArtifactType.MORPHOLOGICAL_CONLLU,
+                          ArtifactType.FULL_CONLLU)
 
         extension = '.conllu' if conllu else '.txt'
         article_name = f"{self.article_id}_{kind.value}{extension}"

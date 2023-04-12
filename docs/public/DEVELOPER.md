@@ -15,19 +15,21 @@ Then right-click on the `python.exe` that appears in the menu and select **Open 
 2. Copy all path to `python.exe`.
    
 
-3. Then right-click **This PC** and select **Properties**. Сlick on the **Advanced system settings** option. 
-In the next window, select the **Advanced** tab and select **Environment Variables**.
+3. Then right-click **This PC** and select **Properties**. Сlick on the 
+**Advanced system settings** option. In the next window, select the 
+**Advanced** tab and select **Environment Variables**.
 
-![](../images/properties.png)
+   ![properties](../images/properties.png)
 
 4. In the **User Variables** menu, find a variable named **Path**. 
 Then paste the path you copied earlier into the **Variable Value** option.
 
     1. If you cannot find variable **Path**, create one. To do this, click **New**. 
-   Then in the variable name form type `PYTHONPATH` and paste your Python path into the variable value field.
+   Then in the variable name form type `PYTHONPATH` and paste your Python path into 
+   the variable value field.
    
 
-   ![](../images/new_pythonpath.png)
+   ![new path](../images/new_pythonpath.png)
    
 5. Go back to the `python.exe` folder and open the **Scripts** folder. Copy its path.
 
@@ -35,10 +37,11 @@ Then paste the path you copied earlier into the **Variable Value** option.
 6. Go back to **Environment variables**. Type a semicolon after the path to `python.exe` and 
 paste the path to the **Scripts** folder. Click OK.
 
-![](../images/creating_pythonpath.png)
+![creating path](../images/creating_pythonpath.png)
 
-To see if Python is added to the Windows PATH, open a terminal and type `python --version`, then press Enter. 
-If it returns the currently installed version of Python, then you have successfully added it to the Windows PATH.
+To see if Python is added to the Windows PATH, open a terminal and type `python --version`, 
+then press Enter. If it returns the currently installed version of Python, then you have 
+successfully added it to the Windows PATH.
 
 
 ## <a name="setting-virtualenv"></a>Setting up a `virtualenv`

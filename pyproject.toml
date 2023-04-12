@@ -14,6 +14,7 @@ markers = [
     "stage_3_3_conllu_token_checks: tests for Conllu Token",
     "stage_3_4_admin_data_processing: tests for Admin data processing",
     "stage_3_5_student_dataset_validation: tests for Student dataset validation",
+    "stage_3_6_advanced_morphological_processing: tests for advances processing pipeline",
     "stage_4_pos_frequency_pipeline_checks: tests for POSFrequencyPipeline",
     "lab_5_scrapper: all checks for the scrapper",
     "lab_6_pipeline: all checks for the pipeline",
