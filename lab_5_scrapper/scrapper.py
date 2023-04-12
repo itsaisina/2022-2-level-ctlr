@@ -3,7 +3,6 @@ Crawler implementation
 """
 import datetime
 import json
-import os
 import pickle
 import random
 import re
@@ -216,7 +215,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if isinstance(href, str) \
+        if href is not None \
                 and href.startswith('https://chelny-izvest.ru/news/') \
                 and href.count('/') == 5:
             return href
@@ -278,7 +277,7 @@ class HTMLParser:
         self.article.date = self.unify_date_format(date_str)
 
         topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})[1]
-        self.article.topic = topic_elem.get_text(strip=True) if topic_elem else "NOT FOUND"
+        self.article.topics = topic_elem.get_text(strip=True) if topic_elem else "NOT FOUND"
 
         title_elem = article_soup.find('h1', {'class': 'page-main__head'})
         self.article.title = title_elem.get_text(strip=True) if title_elem else "NOT FOUND"
@@ -335,9 +334,11 @@ class CrawlerRecursive(Crawler):
         """
         super().__init__(config)
         self.start_url = self.get_search_urls()[0]
-        self.state_file = os.path.join(os.getcwd(), 'crawler_state.pkl')
-        if os.path.exists(self.state_file):
-            self.load_state()
+        self.count_seed_url = 0
+        self.urls = []
+        self.state_file = Path('crawler_state.pkl')
+        if self.state_file.exists():
+            self._load_state()
 
     def find_articles(self) -> None:
         """
@@ -345,26 +346,35 @@ class CrawlerRecursive(Crawler):
         """
         response = make_request(self.start_url, self._config)
         article_bs = BeautifulSoup(response.text, 'lxml')
-        for elem in article_bs.find_all('a', class_='widget-view-small__head'):
+        urls = (
+            *article_bs.find_all('a', class_='widget-view-small__head'),
+            *article_bs.find_all('a', class_='widget-comment__source global-link'),
+            *article_bs.find_all('a', class_='widget-view-small__head widget-view-small__head_s')
+        )
+        for elem in urls:
             if len(self.urls) >= self._config.get_num_articles():
-                self.save_state()
                 return
+            self._save_state()
             article_url = self._extract_url(elem)
             if not article_url or 'http' not in article_url or article_url in self.urls:
+                if urls[-1] == elem and self.count_seed_url < len(self.get_search_urls()) - 1:
+                    self.start_url = self.get_search_urls()[self.count_seed_url]
+                    self.count_seed_url += 1
+                    self.find_articles()
                 continue
             self.urls.append(article_url)
             self.start_url = article_url
-            self.save_state()
+            self._save_state()
             self.find_articles()
 
-    def save_state(self) -> None:
+    def _save_state(self) -> None:
         """
-        Saves the state of the crawler to a file
+        Save state of the crawler to file
         """
-        with open(self.state_file, 'wb') as f:
+        with self.state_file.open('wb') as f:
             pickle.dump({'urls': self.urls, 'start_url': self.start_url}, f)
 
-    def load_state(self) -> None:
+    def _load_state(self) -> None:
         """
         Loads the state of the crawler from a file
         """
@@ -408,4 +418,3 @@ def main_recursive() -> None:
 
 if __name__ == "__main__":
     main()
-    main_recursive()
