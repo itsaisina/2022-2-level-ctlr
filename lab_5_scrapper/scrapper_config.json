@@ -34,7 +34,7 @@
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
     "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
-    "timeout": 3,
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
