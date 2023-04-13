@@ -347,16 +347,16 @@ class CrawlerRecursive(Crawler):
         response = make_request(self.start_url, self._config)
         article_bs = BeautifulSoup(response.text, 'lxml')
         urls = (
-            *article_bs.find_all('a', class_='widget-view-small__head'),
-            *article_bs.find_all('a', class_='widget-comment__source global-link'),
-            *article_bs.find_all('a', class_='widget-view-small__head widget-view-small__head_s')
+            *article_bs.find_all('div', class_='widget-view-small'),
+            *article_bs.find_all('div', class_='widget-comment'),
+            *article_bs.find_all('div', class_='widget-main')
         )
         for elem in urls:
             if len(self.urls) >= self._config.get_num_articles():
                 return
             self._save_state()
             article_url = self._extract_url(elem)
-            if not article_url or 'http' not in article_url or article_url in self.urls:
+            if not article_url or article_url in self.urls:
                 if urls[-1] == elem and self.count_seed_url < len(self.get_search_urls()) - 1:
                     self.start_url = self.get_search_urls()[self.count_seed_url]
                     self.count_seed_url += 1
