@@ -217,7 +217,6 @@ class Crawler:
         """
         href = article_bs.get('href')
         parsed_url = urlparse(href)
-        print(parsed_url)
         if isinstance(href, str) \
                 and parsed_url.scheme == 'https' \
                 and parsed_url.netloc == 'chelny-izvest.ru' \
