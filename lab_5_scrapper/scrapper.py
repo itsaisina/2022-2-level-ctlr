@@ -225,6 +225,7 @@ class Crawler:
                 and parsed_url.path.startswith('/news/') \
                 and parsed_url.path.count('/') == 3:
             return href
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -422,4 +423,4 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_recursive()
