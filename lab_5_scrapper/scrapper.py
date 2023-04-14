@@ -10,6 +10,7 @@ import shutil
 import time
 from pathlib import Path
 from typing import Pattern, Union
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -215,9 +216,13 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
+        parsed_url = urlparse(href)
+        print(parsed_url)
         if isinstance(href, str) \
-                and href.startswith('https://chelny-izvest.ru/news/') \
-                and href.count('/') == 5:
+                and parsed_url.scheme == 'https' \
+                and parsed_url.netloc == 'chelny-izvest.ru' \
+                and parsed_url.path.startswith('/news/') \
+                and parsed_url.path.count('/') == 3:
             return href
         return ''
 
@@ -228,13 +233,14 @@ class Crawler:
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for elem in article_bs.find_all('a', class_='widget-view-small__head'):
-                if len(self.urls) >= self._config.get_num_articles():
-                    return
-                article_url = self._extract_url(elem)
-                if not article_url or article_url in self.urls:
-                    continue
-                self.urls.append(article_url)
+            if response.status_code == 200:
+                for elem in article_bs.find_all('a', class_='widget-view-small__head'):
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
+                    article_url = self._extract_url(elem)
+                    if not article_url or article_url in self.urls:
+                        continue
+                    self.urls.append(article_url)
 
     def get_search_urls(self) -> list:
         """
@@ -268,7 +274,7 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author_elem = article_soup.find('a', {'class': 'page-main__publish-author global-link'})
+        author_elem = article_soup.find('a', {'class': 'page-main__publish-author'})
         self.article.author = [elem.get_text(strip=True) for elem in author_elem] \
             if author_elem else ["NOT FOUND"]
 
@@ -276,7 +282,7 @@ class HTMLParser:
         date_str = date_elem.get_text(strip=True) if date_elem else "NOT FOUND"
         self.article.date = self.unify_date_format(date_str)
 
-        topic_elem = article_soup.find_all('a', {'class': 'panel-group__title global-link'})[1]
+        topic_elem = article_soup.find_all('a', {'class': 'panel-group__title'})[1]
         self.article.topics = topic_elem.get_text(strip=True) if topic_elem else "NOT FOUND"
 
         title_elem = article_soup.find('h1', {'class': 'page-main__head'})
