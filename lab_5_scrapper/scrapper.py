@@ -216,6 +216,8 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
+        if not isinstance(href, str):
+            return ''
         parsed_url = urlparse(href)
         if isinstance(href, str) \
                 and parsed_url.scheme == 'https' \
@@ -223,7 +225,6 @@ class Crawler:
                 and parsed_url.path.startswith('/news/') \
                 and parsed_url.path.count('/') == 3:
             return href
-        return ''
 
     def find_articles(self) -> None:
         """
@@ -359,7 +360,6 @@ class CrawlerRecursive(Crawler):
         for elem in urls:
             if len(self.urls) >= self._config.get_num_articles():
                 return
-            self._save_state()
             article_url = self._extract_url(elem)
             if not article_url or article_url in self.urls:
                 if urls[-1] == elem and self.count_seed_url < len(self.get_search_urls()) - 1:
