@@ -271,6 +271,16 @@ class IOTest(unittest.TestCase):
         self.assertTrue(self.article.get_meta_file_path().is_file(), error_msg)
 
     @pytest.mark.core_utils
+    def test_full_conllu_file_is_created(self):
+        """
+        Ensure that to_conllu() function saves pymorphy conllu info
+        """
+        error_msg = "File for article morphological conllu info is not created"
+        to_conllu(self.article, include_morphological_tags=True, include_pymorphy_tags=True)
+        self.assertTrue(self.article.get_file_path(ArtifactType.FULL_CONLLU).is_file(),
+                        error_msg)
+
+    @pytest.mark.core_utils
     def test_conllu_file_is_created(self):
         """
         Ensure that to_conllu() function saves morphological conllu info

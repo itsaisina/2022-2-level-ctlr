@@ -9,10 +9,11 @@
     "topics": [],
     "pos_frequencies": {
         "ADJ": 2,
-        "NOUN": 6,
+        "NOUN": 7,
         "ADV": 1,
         "VERB": 1,
         "ADP": 3,
+        "CCONJ": 1,
         "NUM": 1,
         "PUNCT": 1
     }

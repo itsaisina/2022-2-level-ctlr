@@ -22,9 +22,9 @@ TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
 
 if [[ ${TARGET_SCORE} == 4 ]]; then
   echo "Running score four checks"
-  python -m pytest -m "mark4 and stage_2_4_dataset_volume_check" --capture=no
+  python -m pytest -m "mark4 and stage_2_4_dataset_volume_check" --capture=no --ignore=lab_6_pipeline
 else
-  python -m pytest -m "mark10 and stage_2_4_dataset_volume_check" --capture=no
+  python -m pytest -m "mark10 and stage_2_4_dataset_volume_check" --capture=no --ignore=lab_6_pipeline
 fi
 
 ret=$?

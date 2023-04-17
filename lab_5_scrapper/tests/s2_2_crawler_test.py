@@ -81,7 +81,8 @@ class CrawlerTest(unittest.TestCase):
         crawler = Crawler(self.config)
         crawler.find_articles()
         error_msg = 'Method find_articles() must fill field "urls" ' \
-                    'with not less articles than specified in config file'
+                    'with not less articles than specified in config file.' \
+                    f'{len(crawler.urls)} != {self.config.get_num_articles()}'
         self.assertTrue(len(crawler.urls) >= self.config.get_num_articles(), error_msg)
 
     @pytest.mark.mark4

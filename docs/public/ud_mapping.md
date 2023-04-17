@@ -23,6 +23,7 @@
 | `CONJ`       | `CONJ`   | `CCONJ`  | POS      |
 | `PART`       | `PRCL`   | `PART`   | POS      |
 | `INTJ`       | `INTJ`   | `INTJ`   | POS      |
+|              | `UNKN`   | `X`      | POS      |
 | <!-- -->     | <!-- --> | <!-- --> | <!-- --> |
 | `им`         | `nomn`   | `Nom`    | Case     |
 | `род`        | `gent`   | `Gen`    | Case     |

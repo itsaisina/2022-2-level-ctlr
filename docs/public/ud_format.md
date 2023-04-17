@@ -1,8 +1,8 @@
 # Working with UD format and `CONLL-U`
 
 During the implementation of Lab 6, you need to convert Mystem and PyMorphy tags to the UD format 
-and save in a `conllu` file. Here you will learn what Mystem and PyMorphy tags look like, 
-how to convert them to the UD format and what should `conllu` file structure look like.
+and save in a `.conllu` file. Here you will learn what Mystem and PyMorphy tags look like, 
+how to convert them to the UD format and what should `.conllu` file structure look like.
 
 > **NOTE**: UD (Universal Dependencies) is a framework for consistent annotation of grammar 
 > (parts of speech, morphological features, and syntactic dependencies) across different 
@@ -59,13 +59,13 @@ For example:
 ### <a name="mystem"></a>Mystem
 
 The `pymystem3` library is a wrapper around Mystem for Python. It provides the morphological 
-analysis 
-for the language tokens. 
+analysis for the language tokens. 
 
 > **NOTE**: The list of all tags used in Mystem is available on 
 > the [dedicated page](https://yandex.ru/dev/mystem/doc/grammemes-values.html).
 
-It is structured as follows: `POS,FeatureValue?,FeatureValue?...=(FeatureValue?,FeatureValue?...|FeatureValue?,FeatureValue?...|)`
+It is structured as follows: 
+`POS,FeatureValue?,FeatureValue?...=(FeatureValue?,FeatureValue?...|FeatureValue?,FeatureValue?...|)`
 where: 
 * `POS` is a part of speech 
 * `FeatureValue` is the value of a morphological feature 
@@ -81,13 +81,11 @@ The specific structure varies based on the part of speech, see examples below:
 * Numeral: `NUM=(им|вин,неод)`
 * Pronoun: `SPRO,ед,3-л,жен=им` OR `SPRO,ед,3-л,жен=(дат|твор)`
 * Particle, preposition, interjection, conjunction, part of a compound word, adverb, pronominal 
-   adverb: 
-`PART=`, `PR=`, `INTJ=`, `CONJ=`, `COM=`, `ADV=`, `ADVPRO=` respectively
+   adverb: `PART=`, `PR=`, `INTJ=`, `CONJ=`, `COM=`, `ADV=`, `ADVPRO=` respectively
 
 >**HINT**: For the mark 8 (when you have to fill the FEATS field information in the resulting 
-> .conllu file) 
-> there is no need to process `PART`, `PR`, `INTJ`, `CONJ`, `COM`, `ADVPRO`, `ADV` as they 
-> only have POS.
+> `.conllu` file) there is no need to process `PART`, `PR`, `INTJ`, `CONJ`, 
+> `COM`, `ADVPRO`, `ADV` as they only have POS.
 
 As it is seen from the examples above, the number of features can be different even for the 
 same part of speech: 
@@ -97,9 +95,8 @@ This fact should be kept in mind while parsing the morphological features.
 > **NB**: For the sake of simplicity, only the first possible set of features is considered.
 > For example, in this set of features`(вин,ед|род,ед)` you should consider this one `вин,ед`
 
-> **HINT**: As the pymystem3 returns these morphological features as a string, there is nothing 
-> left but 
-> to parse it by delimiters (`,=|()`) or find more elegant way.
+> **HINT**: As the `pymystem3` returns these morphological features as a string, there is nothing 
+> left but to parse it by delimiters (`,=|()`) or find more elegant way.
 
 Let's parse `S,муж,од=(вин,ед|род,ед)` to the UD format. 
 As the morphological features in the UD format are structured as following: 
@@ -117,8 +114,7 @@ PyMorphy uses the tags from OpenCorpora. The list of all tags is available on
 the [OpenCorpora Website](http://opencorpora.org/dict.php?act=gram&order=priority).
 
 As the `pymorphy2` returns these morphological features as an instance of the `OpencorporaTag` 
-class, 
-it is possible to access its attributes to extract the information.
+class, it is possible to access its attributes to extract the information.
 
 Available attributes for `OpencorporaTag` are:
 * `POS`
@@ -150,12 +146,12 @@ the resulting string for our example would be:
 ## <a name="conllu-structure"></a>`CONLL-U` structure
 
 After processing your articles and converting Mystem and PyMorphy tags to the UD format, 
-you should save your annotated data in a `conllu` file.
+you should save your annotated data in a `.conllu` file.
 
-Let's look at an example of a `conllu` file that should work for you. 
+Let's look at an example of a `.conllu` file that should work for you. 
 It is a subset of a file from 
 [this repository](https://github.com/UniversalDependencies/UD_Russian-SynTagRus). 
-File with example text can be found [here](lab_6_pipeline/data/ud_test.conllu).
+File with example text can be found [here](ud_test.conllu).
 
 It has the following structure, where each "column" is responsible for:
 1. **ID**: Word index, integer starting at 1 for each new word in the sentence.

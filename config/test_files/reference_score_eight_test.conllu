@@ -1,18 +1,20 @@
 # sent_id = 0
-# text = Красивая - мама красиво, училась в ПДД по адресу Львовская 10 лет с почтой test .
+# text = Красивая - мама красиво, училась в ПДД и ЖКУ по адресу Львовская 10 лет с почтой test .
 1	Красивая	красивый	ADJ	_	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
 2	мама	мама	NOUN	_	Animacy=Anim|Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
 3	красиво	красиво	ADV	_	_	0	root	_	_
 4	училась	учиться	VERB	_	Gender=Fem|Number=Sing|Tense=Past	0	root	_	_
 5	в	в	ADP	_	_	0	root	_	_
 6	ПДД	пдд	NOUN	_	Case=Ins|Number=Plur	0	root	_	_
-7	по	по	ADP	_	_	0	root	_	_
-8	адресу	адрес	NOUN	_	Animacy=Inan|Case=Dat|Gender=Masc|Number=Sing	0	root	_	_
-9	Львовская	львовский	ADJ	_	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
-10	10	10	NUM	_	_	0	root	_	_
-11	лет	год	NOUN	_	Animacy=Inan|Case=Gen|Gender=Masc|Number=Plur	0	root	_	_
-12	с	с	ADP	_	_	0	root	_	_
-13	почтой	почта	NOUN	_	Animacy=Inan|Case=Ins|Gender=Fem|Number=Sing	0	root	_	_
-14	test	test	NOUN	_	_	0	root	_	_
-15	.	.	PUNCT	_	_	0	root	_	_
+7	и	и	CCONJ	_	_	0	root	_	_
+8	ЖКУ	жку	NOUN	_	Animacy=Inan|Case=Ins|Gender=Neut|Number=Plur	0	root	_	_
+9	по	по	ADP	_	_	0	root	_	_
+10	адресу	адрес	NOUN	_	Animacy=Inan|Case=Dat|Gender=Masc|Number=Sing	0	root	_	_
+11	Львовская	львовский	ADJ	_	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
+12	10	10	NUM	_	_	0	root	_	_
+13	лет	год	NOUN	_	Animacy=Inan|Case=Gen|Gender=Masc|Number=Plur	0	root	_	_
+14	с	с	ADP	_	_	0	root	_	_
+15	почтой	почта	NOUN	_	Animacy=Inan|Case=Ins|Gender=Fem|Number=Sing	0	root	_	_
+16	test	test	NOUN	_	_	0	root	_	_
+17	.	.	PUNCT	_	_	0	root	_	_
 

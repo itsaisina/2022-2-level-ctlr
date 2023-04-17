@@ -48,7 +48,7 @@ class ExtendedTestCase(unittest.TestCase):
         except ExceptionIsNotRaised:
             raise AssertionError(msg) from ExceptionIsNotRaised
         except Exception as inst:  # pylint: disable=broad-except
-            self.assertEqual(type(inst), exception, msg)
+            self.assertEqual(exception, type(inst), msg)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -61,17 +61,13 @@ class CrawlerConfigCheck(ExtendedTestCase):
         with CRAWLER_CONFIG_PATH.open() as file:
             self.reference = json.load(file)
 
-        self.seed_urls_correct = ['https://sample.com/']
-        self.num_articles_correct = 10
-        self.headers_correct = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/97.0.4692.99 Safari/537.36 OPR/83.0.4254.70",
-        }
-        self.timeout_correct = 5
-        self.encoding_correct = 'utf-8'
-        self.should_verify_certificate = False
-        self.headless_mode = False
+        self.seed_urls_correct = self.reference['seed_urls']
+        self.num_articles_correct = self.reference['total_articles_to_find_and_parse']
+        self.headers_correct = self.reference['headers']
+        self.timeout_correct = self.reference['timeout']
+        self.encoding_correct = self.reference['encoding']
+        self.should_verify_certificate = self.reference['should_verify_certificate']
+        self.headless_mode = self.reference['headless_mode']
 
         self.seed_urls_incorrect = ['https://sample.com/', True, 1, ['does_not_match_pattern']]
         self.num_articles_incorrect = [-5, False, {1: 2}]
