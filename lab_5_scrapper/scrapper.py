@@ -400,9 +400,9 @@ class CrawlerRecursive(Crawler):
         """
         self._handle_crawler_data('w')
 
-    def find_articles(self):
+    def find_articles(self) -> None:
         """
-        Рекурсивный поиск ссылок на сайте и сбор статей
+        Recursive collecting and searching for links on the site
         """
         if self.num_visited_urls:
             self.start_url = self.visited_urls[self.num_visited_urls - 1]
@@ -411,7 +411,8 @@ class CrawlerRecursive(Crawler):
         for link in links_bs.find_all('a'):
             if self._extract_url(link):
                 url = self._extract_url(link)
-                if url and url not in self.urls and len(self.urls) < self._config.get_num_articles():
+                if url and url not in self.urls \
+                        and len(self.urls) < self._config.get_num_articles():
                     self.urls.append(url)
             else:
                 href = link.get("href")
@@ -451,11 +452,14 @@ def main_recursive() -> None:
     recursive_crawler = CrawlerRecursive(config=configuration)
     recursive_crawler.load_crawler_data()
     recursive_crawler.find_articles()
-    for index in range(recursive_crawler.last_file_index, len(recursive_crawler.urls) + 1):
+    for index in range(recursive_crawler.last_file_index,
+                       len(recursive_crawler.urls) + 1):
         recursive_crawler.last_file_index = index
         recursive_crawler.update_file_index()
         current_url = recursive_crawler.urls[index - 1]
-        parser = HTMLParser(full_url=current_url, article_id=index, config=configuration)
+        parser = HTMLParser(full_url=current_url,
+                            article_id=index,
+                            config=configuration)
         parsed_article = parser.parse()
         if isinstance(parsed_article, Article):
             to_raw(parsed_article)
