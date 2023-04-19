@@ -3,7 +3,6 @@ Crawler implementation
 """
 import datetime
 import json
-import pickle
 import random
 import re
 import shutil
@@ -192,7 +191,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
                             timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
-    time.sleep(random.uniform(0.5, 1))
+    time.sleep(random.uniform(1, 2))
     return response
 
 
@@ -321,13 +320,16 @@ class HTMLParser:
         return self.article
 
 
-def prepare_environment(base_path: Union[Path, str]) -> None:
+def prepare_environment(base_path: Union[Path, str], recursion: bool = False) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
     if base_path.exists():
-        shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+        if not recursion:
+            shutil.rmtree(base_path)
+            base_path.mkdir(parents=True)
+    else:
+        base_path.mkdir(parents=True)
 
 
 class CrawlerRecursive(Crawler):
@@ -335,71 +337,105 @@ class CrawlerRecursive(Crawler):
     Recursive Crawler implementation
     """
 
-    def __init__(self, config: Config) -> None:
-        """
-        Initializes an instance of the Recursive Crawler class
-        """
+    def __init__(self, config: Config):
         super().__init__(config)
-        self.start_url = self.get_search_urls()[0]
-        self.count_seed_url = 0
+        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        self.start_url = config.get_seed_urls()[0]
+        self.num_visited_urls = 0
+        self.last_file_index = 0
+        self.visited_urls = []
         self.urls = []
-        self.state_file = Path('crawler_state.pkl')
-        if self.state_file.exists():
-            self._load_state()
 
-    def find_articles(self) -> None:
+    def _handle_crawler_data(self, mode: str) -> None:
         """
-        Finds articles recursively starting from the given URL
+        Handles saving, loading, and updating crawler data
         """
+        if self.crawler_data_path.exists() or mode == 'w':
+            with open(self.crawler_data_path, mode, encoding='utf-8') as file:
+                if mode == 'w':
+                    json.dump(self._get_crawler_data(), file,
+                              ensure_ascii=True, indent=4, separators=(', ', ': '))
+                elif mode == 'r':
+                    self._set_crawler_data(json.load(file))
+
+    def _get_crawler_data(self) -> dict:
+        """
+        Returns a dictionary containing the crawler's data
+        """
+        return {
+            'last_file_idx': self.last_file_index,
+            'num_visited_urls': self.num_visited_urls,
+            'start_url': self.start_url,
+            'urls': self.urls,
+            'visited_urls': self.visited_urls
+        }
+
+    def _set_crawler_data(self, data: dict) -> None:
+        """
+        Sets the crawler's data from a dictionary
+        """
+        self.last_file_index = data['last_file_idx']
+        self.num_visited_urls = data['num_visited_urls']
+        self.start_url = data['start_url']
+        self.urls = data['urls']
+        self.visited_urls = data['visited_urls']
+
+    def _save_crawler_data(self) -> None:
+        """
+        Saves start_url and collected urls
+        from crawler into a json file
+        """
+        self._handle_crawler_data('w')
+
+    def load_crawler_data(self) -> None:
+        """
+        Loads start_url and collected urls
+        from a json file into crawler
+        """
+        self._handle_crawler_data('r')
+
+    def update_file_index(self) -> None:
+        """
+        Updates index of the last parsed article file
+        """
+        self._handle_crawler_data('w')
+
+    def find_articles(self):
+        """
+        Рекурсивный поиск ссылок на сайте и сбор статей
+        """
+        if self.num_visited_urls:
+            self.start_url = self.visited_urls[self.num_visited_urls - 1]
         response = make_request(self.start_url, self._config)
-        article_bs = BeautifulSoup(response.text, 'lxml')
-        urls = (
-            *article_bs.find_all('div', class_='widget-view-small'),
-            *article_bs.find_all('div', class_='widget-comment'),
-            *article_bs.find_all('div', class_='widget-main')
-        )
-        for elem in urls:
-            if len(self.urls) >= self._config.get_num_articles():
-                return
-            article_url = self._extract_url(elem)
-            if not article_url or article_url in self.urls:
-                if urls[-1] == elem and self.count_seed_url < len(self.get_search_urls()) - 1:
-                    self.start_url = self.get_search_urls()[self.count_seed_url]
-                    self.count_seed_url += 1
-                    self.find_articles()
-                continue
-            self.urls.append(article_url)
-            self.start_url = article_url
-            self._save_state()
+        links_bs = BeautifulSoup(response.content, 'lxml')
+        for link in links_bs.find_all('a'):
+            if self._extract_url(link):
+                url = self._extract_url(link)
+                if url and url not in self.urls and len(self.urls) < self._config.get_num_articles():
+                    self.urls.append(url)
+            else:
+                href = link.get("href")
+                if not href \
+                        or href in self.visited_urls \
+                        or not href.startswith('https://chelny-izvest.ru/news/'):
+                    continue
+                self.visited_urls.append(href)
+        self._save_crawler_data()
+        while len(self.urls) < self._config.get_num_articles():
+            self.num_visited_urls += 1
             self.find_articles()
-
-    def _save_state(self) -> None:
-        """
-        Save state of the crawler to file
-        """
-        with self.state_file.open('wb') as f:
-            pickle.dump({'urls': self.urls, 'start_url': self.start_url}, f)
-
-    def _load_state(self) -> None:
-        """
-        Loads the state of the crawler from a file
-        """
-        with open(self.state_file, 'rb') as f:
-            state = pickle.load(f)
-            self.urls = state['urls']
-            self.start_url = state['start_url']
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(CRAWLER_CONFIG_PATH)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config)
+    crawler = Crawler(config=config)
     crawler.find_articles()
-    for ind, url in enumerate(crawler.urls, 1):
-        parser = HTMLParser(url, ind, config)
+    for ind, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=ind, config=config)
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
@@ -410,17 +446,21 @@ def main_recursive() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(CRAWLER_CONFIG_PATH)
-    prepare_environment(ASSETS_PATH)
-    recursive_crawler = CrawlerRecursive(config)
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH, recursion=True)
+    recursive_crawler = CrawlerRecursive(config=configuration)
+    recursive_crawler.load_crawler_data()
     recursive_crawler.find_articles()
-    for ind, url in enumerate(recursive_crawler.urls, 1):
-        parser = HTMLParser(url, ind, config)
-        article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+    for index in range(recursive_crawler.last_file_index, len(recursive_crawler.urls) + 1):
+        recursive_crawler.last_file_index = index
+        recursive_crawler.update_file_index()
+        current_url = recursive_crawler.urls[index - 1]
+        parser = HTMLParser(full_url=current_url, article_id=index, config=configuration)
+        parsed_article = parser.parse()
+        if isinstance(parsed_article, Article):
+            to_raw(parsed_article)
+            to_meta(parsed_article)
 
 
 if __name__ == "__main__":
-    main_recursive()
+    main()
