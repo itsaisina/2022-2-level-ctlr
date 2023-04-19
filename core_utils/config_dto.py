@@ -10,11 +10,11 @@ class ConfigDTO:
     """
 
     seed_urls: list[str]
-    total_articles_to_find_and_parse: int
+    total_articles: int
     headers: dict[str, str]
     encoding: str
     timeout: int
-    verify_certificate: bool
+    should_verify_certificate: bool
     headless_mode: bool
 
     def __init__(self,

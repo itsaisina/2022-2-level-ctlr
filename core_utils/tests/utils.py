@@ -44,7 +44,7 @@ class TestInputs:
 
     extracted_sentences_from_conllu = [
         {'position': '0',
-         'text': 'Красивая - мама красиво, училась в ПДД '
+         'text': 'Красивая - мама красиво, училась в ПДД и ЖКУ '
                  'по адресу Львовская 10 лет с почтой test .',
          'tokens': ['1\tКрасивая\tкрасивый\tADJ\t_\t_\t0\troot\t_\t_',
                     '2\tмама\tмама\tNOUN\t_\t_\t0\troot\t_\t_',
@@ -52,12 +52,14 @@ class TestInputs:
                     '4\tучилась\tучиться\tVERB\t_\t_\t0\troot\t_\t_',
                     '5\tв\tв\tADP\t_\t_\t0\troot\t_\t_',
                     '6\tПДД\tпдд\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '7\tпо\tпо\tADP\t_\t_\t0\troot\t_\t_',
-                    '8\tадресу\tадрес\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '9\tЛьвовская\tльвовский\tADJ\t_\t_\t0\troot\t_\t_',
-                    '10\t10\t10\tNUM\t_\t_\t0\troot\t_\t_',
-                    '11\tлет\tгод\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '12\tс\tс\tADP\t_\t_\t0\troot\t_\t_',
-                    '13\tпочтой\tпочта\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '14\ttest\ttest\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '15\t.\t.\tPUNCT\t_\t_\t0\troot\t_\t_']}]
+                    '7\tи\tи\tCCONJ\t_\t_\t0\troot\t_\t_',
+                    '8\tЖКУ\tжку\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '9\tпо\tпо\tADP\t_\t_\t0\troot\t_\t_',
+                    '10\tадресу\tадрес\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '11\tЛьвовская\tльвовский\tADJ\t_\t_\t0\troot\t_\t_',
+                    '12\t10\t10\tNUM\t_\t_\t0\troot\t_\t_',
+                    '13\tлет\tгод\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '14\tс\tс\tADP\t_\t_\t0\troot\t_\t_',
+                    '15\tпочтой\tпочта\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '16\ttest\ttest\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '17\t.\t.\tPUNCT\t_\t_\t0\troot\t_\t_']}]
