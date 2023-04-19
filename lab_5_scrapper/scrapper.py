@@ -450,7 +450,10 @@ def main_recursive() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH, recursion=True)
     recursive_crawler = CrawlerRecursive(config=configuration)
-    recursive_crawler.load_crawler_data()
+    if not recursive_crawler.crawler_data_path.exists():
+        recursive_crawler.last_file_index = 1
+    else:
+        recursive_crawler.load_crawler_data()
     recursive_crawler.find_articles()
     for index in range(recursive_crawler.last_file_index,
                        len(recursive_crawler.urls) + 1):
@@ -467,4 +470,4 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_recursive()
