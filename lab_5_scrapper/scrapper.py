@@ -400,6 +400,13 @@ class CrawlerRecursive(Crawler):
         """
         self._handle_crawler_data('w')
 
+    def delete_crawler_data(self) -> None:
+        """
+        Deletes the crawler_data.json file
+        """
+        if self.crawler_data_path.exists():
+            self.crawler_data_path.unlink()
+
     def find_articles(self) -> None:
         """
         Recursive collecting and searching for links on the site
@@ -452,6 +459,8 @@ def main_recursive() -> None:
     recursive_crawler = CrawlerRecursive(config=configuration)
     if not recursive_crawler.crawler_data_path.exists():
         recursive_crawler.last_file_index = 1
+        shutil.rmtree(ASSETS_PATH)
+        ASSETS_PATH.mkdir(parents=True)
     else:
         recursive_crawler.load_crawler_data()
     recursive_crawler.find_articles()
@@ -467,6 +476,7 @@ def main_recursive() -> None:
         if isinstance(parsed_article, Article):
             to_raw(parsed_article)
             to_meta(parsed_article)
+    recursive_crawler.delete_crawler_data()
 
 
 if __name__ == "__main__":
