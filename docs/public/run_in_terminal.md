@@ -17,13 +17,16 @@ if __name__ == "__main__":
 To run your program, you need to open terminal (Windows: `Powershell`, macOS: `Terminal`).
 
 Then activate environment:
-1. For Windows: `.\venv\Scripts\activate`, 
+
+1. For Windows: `.\venv\Scripts\activate`
 2. For macOS: `source venv\bin\activate`
 
 If you have problems with access in `PowerShell`, you should change the execution policy in 2 steps:
+
 1. Start Windows `PowerShell` with the "Run as Administrator" option.
 2. Enable running unsigned scripts by entering:
-```
+
+```text
 set-executionpolicy remotesigned
 ```
 
@@ -48,7 +51,7 @@ install instructions from [our starting guide](./starting_guide.md).
 
 ## Running programs with custom modules
 
-Now, try to run your scrapper: 
+Now, try to run your scrapper:
 
 1. Go to your project's folder: `cd C:\Users\user\Documents\2022-2-level-ctlr-admin`
 2. Run scrapper: `python lab_5_scrapper/scrapper.py`
@@ -65,7 +68,7 @@ ModuleNotFoundError: No module named 'core_utils'
 Why? When we run the same from our PyCharm, it works like a charm! What is wrong with terminal
 run? `core_utils` is exactly here, in our current directory!
 
-Answer is a bit deep. We need to understand how Python imports modules and libraries. 
+Answer is a bit deep. We need to understand how Python imports modules and libraries.
 To be able to import installed libraries, Python needs to
 know where they are placed. By default, it knows several locations on your computer where it can
 find requested library.
@@ -73,7 +76,7 @@ find requested library.
 You can see them if you want: `python -c "import sys;print(sys.path)"`
 You will see standard directories where Python will try to find libraries:
 
-```
+```text
 [ 
     '/Users/alexanderdemidovskij/.pyenv/versions/3.10.8/lib/python310.zip', 
     '/Users/alexanderdemidovskij/.pyenv/versions/3.10.8/lib/python3.10', 
@@ -85,14 +88,13 @@ You will see standard directories where Python will try to find libraries:
 So, if the module you are trying to import is not within these paths, Python will fail with the
 aforementioned error.
 
-
-To resolve this you need to explicitly add path to your custom 
+To resolve this you need to explicitly add path to your custom
 dependencies to that standard list.
 
 The recommended way is to append it to a `PYTHONPATH` system variable in terminal:
+
 1. For Windows: `$env:PYTHONPATH = "$pwd;" + $env:PYTHONPATH`
 2. For macOS: `export PYTHONPATH=$pwd:$PYTHONPATH`, `pwd` allows to get current working directory
-
 
 Run scrapper again: `python lab_5_scrapper/scrapper.py`
 

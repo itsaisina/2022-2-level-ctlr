@@ -3,17 +3,17 @@
 ## <a name="faq-scrapper"></a>Lab №5 - Scrapper
 
 <details>
-    <summary><b>I can open my website using browser, but I cannot connect to it 
+    <summary><b>I can open my website using browser, but I cannot connect to it
     via python and get 200 response code.</b></summary>
     <br>
     <p>
-The golden rule goes as follows: if you can connect to the website with your 
-browser, you should also be able to connect to it using python, as it means 
-that the server of the website is working fine. So, it all comes down to your 
+The golden rule goes as follows: if you can connect to the website with your
+browser, you should also be able to connect to it using python, as it means
+that the server of the website is working fine. So, it all comes down to your
 ability to make your python request as similar to the human user's one as possible.
 
-Thus, try adopting some headers, feed `requests.get()` cookies from your own 
-browser after visiting your target website, and wait for a random amount of 
+Thus, try adopting some headers, feed `requests.get()` cookies from your own
+browser after visiting your target website, and wait for a random amount of
 seconds in between requests. Experimenting with those settings should do the trick.
     </p>
 </details>
@@ -21,14 +21,14 @@ seconds in between requests. Experimenting with those settings should do the tri
 <br>
 
 <details>
-    <summary><b>I can successfully connect to my source via requests by running 
+    <summary><b>I can successfully connect to my source via requests by running
     <code>scrapper.py</code>, but connection cannot be established when running tests.
     </b></summary>
     <br>
     <p>
 In case in <code>scrapper.py</code> you feed <code>requests.get()</code> any extra headers or cookies,
 or if you program your scrapper to wait for a certain time period in between the
-requests, you are also expected to modify requests in test files accordingly. 
+requests, you are also expected to modify requests in test files accordingly.
 In other words, test files perform the most basic type of requests with no extra
 settings, so if you need those extra settings, you have to add them manually.
 Check which tests fail, find what module they belong to, and make your changes
@@ -39,24 +39,24 @@ there, it is allowed.
 <br>
 
 <details>
-    <summary><b>During execution of scrapper, error 404 NOT FOUND arises, 
+    <summary><b>During execution of scrapper, error 404 NOT FOUND arises,
     although seed URLs include valid links only.</b></summary>
     <br>
     <p>
 This usually happens when the link that is fed to <code>requests.get()</code> is constructed
 incorrectly. Note that many sources place incomplete versions of URLs to related
-articles in their HTML code, so you have to manually modify then before feeding 
+articles in their HTML code, so you have to manually modify then before feeding
 to <code>requests.get()</code>.
 
-For instance, [this](https://www.nn.ru/text/gorod/2022/05/01/71301596/) `nn.ru` 
-article contains the following link in its HTML 
-source: `/text/gorod/2022/05/01/71300711/`. Before you try to follow it, you have 
-to restore it to its full format by adding a protocol `https://` and a website 
-root `nn.ru`. As a result, you will get a full link 
-`https://nn.ru/text/gorod/2022/05/01/71300711/`, which can be safely 
-fed to `requests.get()`. Also, sometimes students overdo it and try to restore 
-already full-formatted links, getting something like `https://https://nn.ru`, 
-which is obviously also invalid. All in all, pay attention to what kind of URLs 
+For instance, [this](https://www.nn.ru/text/gorod/2022/05/01/71301596/) `nn.ru`
+article contains the following link in its HTML
+source: `/text/gorod/2022/05/01/71300711/`. Before you try to follow it, you have
+to restore it to its full format by adding a protocol `https://` and a website
+root `nn.ru`. As a result, you will get a full link
+`https://nn.ru/text/gorod/2022/05/01/71300711/`, which can be safely
+fed to `requests.get()`. Also, sometimes students overdo it and try to restore
+already full-formatted links, getting something like `https://https://nn.ru`,
+which is obviously also invalid. All in all, pay attention to what kind of URLs
 you pass to your `requests.get()`.
     </p>
 </details>
@@ -68,8 +68,8 @@ you pass to your `requests.get()`.
     <br>
     <p>
 To get a mark higher than 4, you are expected to collect certain metadata
-concerning your articles, including but not limited to their authors. In case 
-information about the author is missing, you can place a NOT FOUND token in its 
+concerning your articles, including but not limited to their authors. In case
+information about the author is missing, you can place a NOT FOUND token in its
 place, tests are programmed to recognize this sequence as valid.
     </p>
 </details>
@@ -80,13 +80,13 @@ place, tests are programmed to recognize this sequence as valid.
     <summary><b>CI checks do not get started after I push my code.</b></summary>
     <br>
     <p>
-In most cases it means that your pull request has conflicts with the main branch 
-of the repository. This can happen after updates have been merges into your pull 
-request by one of the mentors. So, you should always make sure that you have 
-pulled all the updates from your remote branch before you commit any new 
+In most cases it means that your pull request has conflicts with the main branch
+of the repository. This can happen after updates have been merges into your pull
+request by one of the mentors. So, you should always make sure that you have
+pulled all the updates from your remote branch before you commit any new
 changes to your code, it helps to prevent such situations.
 
-In the event it has already happened, you have to pull changes to your local 
+In the event it has already happened, you have to pull changes to your local
 branch, resolve conflicts manually, commit your choices and push it.
     </p>
 </details>
@@ -98,11 +98,11 @@ branch, resolve conflicts manually, commit your choices and push it.
     <br>
     <p>
 Automated testing works as a chain: in order for certain stages to start, the
-previous ones should be successfully completed first. In such a way, 
-<b>Crawler checks config</b> will not be run until your pull request passes code 
-style, PR name and spelling checks. If you fail a spelling check, 
-ask mentors about it as it is likely not your fault. In case of failing PR 
-name or code style, you have to fix your pull request according to the message 
+previous ones should be successfully completed first. In such a way,
+<b>Crawler checks config</b> will not be run until your pull request passes code
+style, PR name and spelling checks. If you fail a spelling check,
+ask mentors about it as it is likely not your fault. In case of failing PR
+name or code style, you have to fix your pull request according to the message
 from those stages before you can proceed to the following checks, and so on.
     </p>
 </details>
@@ -114,20 +114,20 @@ from those stages before you can proceed to the following checks, and so on.
     <br>
     <img src="https://lh3.googleusercontent.com/QWLiFU7LhCcwmlNDqlFR35z-H4fzUHsWMdNZjM7s8WKjFIBJraOR0TJY4r50PSTpUfIALX2_7WjF7MH-709D3LW5DmWAA1aERsNPYX0CdbVnh-0HwqTJurA38w5KxMErF33DmEe1">
     <p>
-This usually happens in the event that your code takes too much time to run. 
-Firstly, try to restart checks. Sometimes that is enough. 
+This usually happens in the event that your code takes too much time to run.
+Firstly, try to restart checks. Sometimes that is enough.
 
-However, if the issue is still there, closely examine your code for any 
+However, if the issue is still there, closely examine your code for any
 bottlenecks, make sure that you do not make any more requests than necessary,
-ensure that there are no infinite loops and/or recursion going on. 
+ensure that there are no infinite loops and/or recursion going on.
 
-Apart from that, verify that you have established a reliable connection with 
-your target web-source, as sometimes servers stop responding to automatically 
-generated requests without explicitly rejecting them. This may cause your 
+Apart from that, verify that you have established a reliable connection with
+your target web-source, as sometimes servers stop responding to automatically
+generated requests without explicitly rejecting them. This may cause your
 program to wait for a response forever, until the time reserved for the stage runs out.
 
-If you are confident that the problem does not involve your code, make your 
-situation known to the mentors. There is a chance that it could be a github 
+If you are confident that the problem does not involve your code, make your
+situation known to the mentors. There is a chance that it could be a github
 malfunction.
     </p>
 </details>
@@ -135,7 +135,7 @@ malfunction.
 <br>
 
 <details>
-    <summary><b>When I push my code, I get <code>ModuleNotFoundError</code> in CI, 
+    <summary><b>When I push my code, I get <code>ModuleNotFoundError</code> in CI,
     yet locally everything works fine.</b></summary>
     <br>
     <p>

@@ -58,7 +58,7 @@ disable_error_code = [
 
 [[tool.mypy.overrides]]
 module = ['ghapi.all', 'matplotlib', 'matplotlib.pyplot',
-'pymorphy2', 'pymorphy2.tagset', 'pymystem3']
+'pymorphy2', 'pymorphy2.tagset', 'pymystem3', 'ast_comments']
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

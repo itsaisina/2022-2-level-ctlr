@@ -10,9 +10,10 @@ if [[ ${TARGET_SCORE} != 0 ]]; then
   mkdir -p tmp/articles
   mv *_cleaned.txt tmp/articles
   mv *_raw.txt tmp/articles
-  
+
   if [[ ${TARGET_SCORE} -gt 4 ]]; then
     mv *_pos_conllu.conllu tmp/articles
+    mv *_meta.json tmp/articles
   fi
   
   if [[ ${TARGET_SCORE} -gt 6 ]]; then

@@ -1,40 +1,34 @@
 {
     "plugins" : {
         "md001": {
-            "enabled": false
-        },
-        "md002": {
-            "enabled": false
+            "enabled": true
         },
         "md003": {
             "enabled": true
         },
         "md004": {
-            "enabled": false
+            "enabled": true
         },
         "md005": {
-            "enabled": false
-        },
-        "md006": {
-            "enabled": false
+            "enabled": true
         },
         "md007": {
-            "enabled": false
+            "enabled": true
         },
         "md008": {
             "enabled": true
         },
         "md009": {
-            "enabled": false
+            "enabled": true
         },
         "md010": {
-            "enabled": false
+            "enabled": true
         },
         "md011": {
             "enabled": true
         },
         "md012": {
-            "enabled": false
+            "enabled": true
         },
         "md013": {
             "enabled": true,
@@ -67,7 +61,7 @@
             "enabled": true
         },
         "md022": {
-            "enabled": false
+            "enabled": true
         },
         "md023": {
             "enabled": true
@@ -94,10 +88,10 @@
             "enabled": true
         },
         "md031": {
-            "enabled": false
+            "enabled": true
         },
         "md032": {
-            "enabled": false
+            "enabled": true
         },
         "md033": {
             "enabled": false
@@ -109,7 +103,7 @@
             "enabled": true
         },
         "md036": {
-            "enabled": false
+            "enabled": true
         },
         "md037": {
             "enabled": true
@@ -121,7 +115,7 @@
             "enabled": true
         },
         "md040": {
-            "enabled": false
+            "enabled": true
         },
         "md041": {
             "enabled": true

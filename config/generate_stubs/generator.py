@@ -1,12 +1,12 @@
 """
 Generator of stubs for existing lab implementation
 """
-
 import ast
 from _ast import alias, stmt
 from pathlib import Path
 from typing import Optional
 
+import ast_comments
 from tap import Tap
 
 
@@ -42,11 +42,18 @@ def cleanup_code(source_code_path: Path) -> str:
     Removing implementation based on AST parsing of code
     """
     with source_code_path.open(encoding='utf-8') as file:
-        data = ast.parse(file.read(), source_code_path.name)
+        data = ast.parse(file.read(), source_code_path.name, type_comments=True)
+
+    with source_code_path.open(encoding='utf-8') as file:
+        data_2 = ast_comments.parse(file.read(), source_code_path.name)
 
     accepted_modules: dict[str, list[str]] = {'typing': ['*']}
 
     new_decl: list[stmt] = []
+
+    for decl_2 in data_2.body:
+        if isinstance(decl_2, ast_comments.Comment):
+            data.body.insert(data_2.body.index(decl_2), decl_2)  # type: ignore
 
     for decl in data.body:
         if isinstance(decl, (ast.Import, ast.ImportFrom)):
@@ -92,7 +99,7 @@ def cleanup_code(source_code_path: Path) -> str:
         new_decl.append(decl)
 
     data.body = list(new_decl)
-    return ast.unparse(data)
+    return ast_comments.unparse(data)  # type: ignore
 
 
 class ArgumentParser(Tap):

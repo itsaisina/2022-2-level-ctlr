@@ -164,8 +164,8 @@ class ReferenceTextPreprocessAdvancedTest(unittest.TestCase):
                       f"You have {proc_sentence.get('position')}, " \
                       f"but you must have {self.ref_sentences[id_sentence].get('position')}"
             self.assertEqual(
-                proc_sentence.get('position'),
                 self.ref_sentences[id_sentence].get('position'),
+                proc_sentence.get('position'),
                 msg=message)
 
             message = f"In {id_sentence} sentence --- " \
@@ -173,15 +173,15 @@ class ReferenceTextPreprocessAdvancedTest(unittest.TestCase):
                       f"You have {proc_sentence.get('text')}, " \
                       f"but you must have {self.ref_sentences[id_sentence].get('text')}"
             self.assertEqual(
-                proc_sentence.get('text'),
                 self.ref_sentences[id_sentence].get('text'),
+                proc_sentence.get('text'),
                 msg=message)
 
             message = f"In {id_sentence} sentence --- " \
                       f"You have wrong tokens "
             self.assertEqual(
-                proc_sentence.get('tokens'),
                 self.ref_sentences[id_sentence].get('tokens'),
+                proc_sentence.get('tokens'),
                 msg=message)
 
     @pytest.mark.mark8

@@ -1,3 +1,4 @@
+ast-comments==1.0.1
 black==22.6.0
 coverage[toml]==6.4.4
 ghapi==0.1.19
