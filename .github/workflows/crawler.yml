@@ -9,6 +9,8 @@ on:
 env:
   IMPLEMENTATION_TYPE: html
   REPOSITORY_TYPE: public
+  GITHUB_REPOSITORY: ${{ github.repository }}
+  BRANCH_NAME: ${{ github.ref }}
 
 jobs:
   # Stage 1. Style checks
@@ -20,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Confirming everything is OK
         run: |
           ls -la ~/.local/bin
@@ -35,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Dependencies check
         run: |
           bash config/stage_1_style_tests/_stage_requirements_check.sh
@@ -53,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: PR name check
         run: |
           bash config/stage_1_style_tests/_stage_pr_name_check.sh "$PR_NAME" "$PR_AUTHOR"
@@ -70,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Code Style
         run: |
           bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
@@ -84,7 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Pymarkdownlnt check
         run: |
           bash config/stage_1_style_tests/_stage_run_pymarkdownlnt.sh
@@ -98,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: MyPy check
         run: |
           bash config/stage_1_style_tests/_stage_run_mypy.sh
@@ -112,7 +114,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Flake8 check
         run: |
           bash config/stage_1_style_tests/_stage_run_flake8.sh
@@ -128,7 +130,7 @@ jobs:
         run: |
           sudo apt-get install aspell aspell-en aspell-ru
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Spell check
         run: |
           bash config/spellcheck/_stage_spellcheck.sh
@@ -147,7 +149,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Run crawler config checks
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
@@ -166,7 +168,7 @@ jobs:
         run: |
           sudo apt-get install aspell aspell-en aspell-ru
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Stubgen check
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}
         run: |
@@ -189,10 +191,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_check_crawler_config.sh "$PR_NAME" "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper stage_2_1_crawler_config_check
           ls -la ~/.local/bin
 
   checking-crawler:
@@ -211,10 +213,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_crawler_checks.sh "$PR_NAME" "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper stage_2_2_crawler_check
 
   checking-parser:
     name: Parser checks
@@ -232,10 +234,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_parser_checks.sh "$PR_NAME" "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper stage_2_3_HTML_parser_check
 
   collecting-articles-from-internet:
     name: Download articles
@@ -253,10 +255,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Crawl a raw dataset from web
         run: |
           bash config/stage_2_crawler_tests/_stage_collect_articles.sh "$PR_NAME" "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper stage_2_4_dataset_volume_check
       - name: Archive raw dataset
         uses: actions/upload-artifact@v3
         with:
@@ -277,7 +280,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -285,7 +288,8 @@ jobs:
           name: raw-dataset
       - name: Run metadata validation
         run: |
-          bash config/stage_2_crawler_tests/_stage_validate_metadata.sh "$PR_NAME" "$PR_AUTHOR"
+          bash config/run_copy_files.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_5_scrapper stage_2_5_dataset_validation
 
   milestone-1-crawler-is-working:
     name: Crawler is accepted!
@@ -301,7 +305,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -336,7 +340,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -344,7 +348,7 @@ jobs:
           name: raw-dataset
       - name: Run crawler config checks
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_raw_dataset.sh "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_1_dataset_sanity_checks
 
   checking-corpus-manager-creates-instances-correctly:
     name: CorpusManager detects articles
@@ -359,7 +363,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -367,7 +371,8 @@ jobs:
           name: raw-dataset
       - name: Run CorpusManager tests
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_corpus_manager.sh "$PR_AUTHOR"
+          bash config/run_copy_files.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_2_corpus_manager_checks
 
   checking-conllu-token-works-correctly:
     name: ConlluToken displays tokens
@@ -382,7 +387,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -390,7 +395,7 @@ jobs:
           name: raw-dataset
       - name: Run Conllu tests
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_conllu_token.sh "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_3_conllu_token_checks
 
   checking-student-processing-works-for-admin-dataset:
     name: Pipe processed admin data
@@ -405,7 +410,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -413,7 +418,9 @@ jobs:
           name: raw-dataset
       - name: Run metadata validation
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_on_admin_dataset.sh "$PR_AUTHOR"
+          bash config/run_copy_files.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_4_admin_data_processing
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_6_advanced_morphological_processing
 
   run-student-processing:
     name: Pipe processed student data
@@ -428,7 +435,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -459,7 +466,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -467,10 +474,11 @@ jobs:
           name: processed-dataset
       - name: Run validation of `_processed.txt` files
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_student_processing.sh "$PR_AUTHOR"
+          bash config/run_copy_files.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_3_5_student_dataset_validation
       - name: Run validation of `.conllu` files
         run: |
-          bash config/stage_3_pipeline_tests/s3_6_student_conllu_preprocess.sh
+          bash config/stage_3_pipeline_tests/_stage_check_student_conllu_validation.sh
 
   running-pos-pipeline-tests:
     name: POSFrequencyPipeline tests
@@ -489,7 +497,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         uses: actions/download-artifact@v3
@@ -498,6 +506,7 @@ jobs:
       - name: Congratulations
         run: |
           bash config/stage_5_pos_frequency_pipeline_tests/_stage_check_pos_pipeline.sh "$PR_AUTHOR"
+          bash config/_stage_run_pytest.sh "$PR_NAME" "$PR_AUTHOR" lab_6_pipeline stage_4_pos_frequency_pipeline_checks
       - name: Archive processed dataset
         continue-on-error: true
         uses: actions/upload-artifact@v3
@@ -528,7 +537,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup FIPL environment
-        uses: fipl-hse/setup-env-action@v0.5
+        uses: fipl-hse/setup-env-action@v0.8
       - name: Download previously collected dataset
         continue-on-error: true
         if: ${{ env.REPOSITORY_TYPE == 'admin' }}

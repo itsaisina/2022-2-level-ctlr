@@ -219,6 +219,8 @@ When dataset is valid, method returns `None`. Otherwise:
    * `EmptyDirectoryError`: directory is empty.
 2. Script immediately finishes execution.
 
+> NOTE: While validating dataset, ignore files which are named not using formats.
+
 #### Stage 1.3 Implement a method for filling files storage
 
 During initialization of the `CorpusManager`,
@@ -882,7 +884,8 @@ This is a sample result we are going to obtain:
 
 #### Stage 6.1. Introduce `POSFrequencyPipeline` abstraction
 
-Create a file `pos_frequency_pipeline.py` with a class `POSFrequencyPipeline`. All code
+Now we are going to work with the file `pos_frequency_pipeline.py`
+and with the class `POSFrequencyPipeline`. All code
 should be written in the `main()` function. `POSFrequencyPipeline` is instantiated in the
 similar manner as the `MorphologicalAnalysisPipeline` or `AdvancedMorphologicalAnalysisPipeline`:
 
@@ -949,7 +952,9 @@ Once executed, `pipeline.run()`:
 > NOTE: It is mandatory to get articles with the `CorpusManager.get_articles()` method.
 
 > NOTE: It is mandatory to use `Article.get_file_path()`, `Article.set_pos_info()` methods.
-> NOTE: It is mandatory to use `to_meta()` function.
+> It is mandatory to use `to_meta()` and from_meta() function.
+
+> NOTE: You have to create `EmptyFileError` exception class and to raise it when an article file is empty.
 
 > NOTE: Make sure that resulting meta files are valid: they must contain no more than one
 > dictionary-line object.

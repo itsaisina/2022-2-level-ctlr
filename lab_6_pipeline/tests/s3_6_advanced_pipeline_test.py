@@ -91,7 +91,7 @@ class AdvancedMorphologicalAnalysisPipelineTest(unittest.TestCase):
             self.conllu_reference = ref.read()
         self.expected_text_w_morph = self.conllu_reference
 
-        path = TEST_FILES_FOLDER / 'reference_score_six_test.conllu'
+        path = TEST_FILES_FOLDER / 'reference_score_ten_wo_morph_test.conllu'
         with path.open('r', encoding='utf-8') as ref:
             self.conllu_reference = ref.read()
         self.expected_text_wo_morph = self.conllu_reference

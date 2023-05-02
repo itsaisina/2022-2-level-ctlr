@@ -113,6 +113,9 @@ the resulting string for our example would be:
 > **NB**: The complete mapping of features from Mystem to the UD format can be found in
 > the [`ud_mapping.md`](ud_mapping.md).
 
+> **HINT**: It's mandatory to use `Loc` mapping for pymystem3 `пр` case because
+> in Slavic languages this is the only case that is used exclusively in combination with prepositions.
+
 ### <a name="pymorphy"></a>PyMorphy
 
 PyMorphy uses the tags from OpenCorpora. The list of all tags is available on
@@ -166,7 +169,7 @@ It has the following structure, where each "column" is responsible for:
 * **ID**: Word index, integer starting at 1 for each new word in the sentence.
 * **FORM**: Word form or punctuation symbol.
 * **LEMMA**: Lemma or stem of word form.
-* **UPOS**: Universal POS tag.
+* **UPOS**: Universal POS tag, mark as `X` if it is unspecified.
 * **XPOS**: Language-specific POS tag.
   * **NB**: mark as `_` as we do not use it.
 * **FEATS**: List of morphological features structured as

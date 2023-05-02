@@ -9,11 +9,7 @@ source venv/bin/activate
 export PYTHONPATH=$(pwd):$PYTHONPATH
 
 if [[ ${TARGET_SCORE} != 0 ]]; then
-  mkdir -p tmp/articles
-  if [[ ${TARGET_SCORE} != 4 ]]; then
-    mv *_meta.json tmp/articles
-  fi
-  mv *_raw.txt tmp/articles
+  bash config/unpack_archived_dataset.sh
   python lab_6_pipeline/pipeline.py
   ls -la tmp/articles
 else

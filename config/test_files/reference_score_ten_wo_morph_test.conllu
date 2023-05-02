@@ -7,7 +7,7 @@
 5	в	в	ADP	_	_	0	root	_	_
 6	ПДД	пдд	NOUN	_	_	0	root	_	_
 7	и	и	CCONJ	_	_	0	root	_	_
-8	ЖКУ	жку	NOUN	_	_	0	root	_	_
+8	ЖКУ	жку	X	_	_	0	root	_	_
 9	по	по	ADP	_	_	0	root	_	_
 10	адресу	адрес	NOUN	_	_	0	root	_	_
 11	Львовская	львовский	ADJ	_	_	0	root	_	_

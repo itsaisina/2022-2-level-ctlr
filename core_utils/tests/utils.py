@@ -61,5 +61,5 @@ class TestInputs:
                     '13\tлет\tгод\tNOUN\t_\t_\t0\troot\t_\t_',
                     '14\tс\tс\tADP\t_\t_\t0\troot\t_\t_',
                     '15\tпочтой\tпочта\tNOUN\t_\t_\t0\troot\t_\t_',
-                    '16\ttest\ttest\tNOUN\t_\t_\t0\troot\t_\t_',
+                    '16\ttest\ttest\tX\t_\t_\t0\troot\t_\t_',
                     '17\t.\t.\tPUNCT\t_\t_\t0\troot\t_\t_']}]

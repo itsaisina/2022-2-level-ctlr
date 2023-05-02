@@ -38,7 +38,7 @@ def main() -> None:
     print(f'Before replacement: {article_date_raw}')
     months = {
         'янв': '01',
-        # other months are going here... lecturer is lazy
+        # other months are going here...
         'апр': '04'
     }
     for month_name, month_number in months.items():
@@ -79,7 +79,7 @@ def main() -> None:
     print(f'Before: {date_raw}')
     months = {
         'янв': '01',
-        # other months are going here... lecturer is lazy
+        # other months are going here...
         'апр': '04'
     }
     for month_name, month_number in months.items():
