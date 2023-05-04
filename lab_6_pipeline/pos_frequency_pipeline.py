@@ -6,20 +6,18 @@ from pathlib import Path
 from typing import Optional
 
 from core_utils.article.article import Article, ArtifactType, get_article_id_from_filepath
-from core_utils.article.io import to_meta
+from core_utils.article.io import to_meta, from_meta
 from core_utils.article.ud import extract_sentences_from_raw_conllu
 from core_utils.constants import ASSETS_PATH
 from core_utils.visualizer import visualize
 from lab_6_pipeline.pipeline import ConlluToken, ConlluSentence, CorpusManager, MorphologicalTokenDTO
+from seminars import EmptyFileError
 
 
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
     """
     Populates the Article abstraction with all information from the conllu file
     """
-    if not Path(path).exists():
-        raise FileNotFoundError(f"File not found: {path}")
-
     with open(path, encoding='utf-8') as f:
         content = f.read()
 
@@ -40,32 +38,21 @@ def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
 def _parse_conllu_token(token_line: str) -> ConlluToken:
     """
     Parses the raw text in the CONLLU format into the CONLL-U token abstraction
-
     Example:
     '2	произошло	происходить	VERB	_	Gender=Neut|Number=Sing|Tense=Past	0	root	_	_'
     """
     params = token_line.split('\t')
-    position = int(params[0])
-    text = params[1]
-    lemma = params[2]
-    pos = params[3]
 
-    token = ConlluToken(text)
-    token.set_position(position)
-    morph_params = MorphologicalTokenDTO(lemma, pos)
+    token = ConlluToken(text=params[1])
+    token.set_position(position=int(params[0]))
+    morph_params = MorphologicalTokenDTO(lemma=params[2],
+                                         pos=params[3])
     token.set_morphological_parameters(morph_params)
 
     return token
 
 
 # pylint: disable=too-few-public-methods
-class EmptyFileError(Exception):
-    """
-    Raises when a file is found to be empty
-    """
-    pass
-
-
 class POSFrequencyPipeline:
     """
     Counts frequencies of each POS in articles,
@@ -86,10 +73,10 @@ class POSFrequencyPipeline:
         for article in articles:
             conllu_path = article.get_file_path(ArtifactType.MORPHOLOGICAL_CONLLU)
 
-            if Path(conllu_path).stat().st_size == 0:
+            if conllu_path.stat().st_size == 0:
                 raise EmptyFileError
 
-            processed_article = from_conllu(conllu_path, article)
+            processed_article = from_meta(article.get_meta_file_path(), from_conllu(conllu_path))
             pos_freq = self._count_frequencies(processed_article)
             article.set_pos_info(pos_freq)
             to_meta(article)
@@ -107,7 +94,6 @@ class POSFrequencyPipeline:
             for token in tokens:
                 pos = token.get_morphological_parameters().pos
                 pos_freq[pos] += 1
-
         return pos_freq
 
 
