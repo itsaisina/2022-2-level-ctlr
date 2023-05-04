@@ -384,16 +384,17 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
             for token in tokens_with_punctuations:
                 conllu_token = ConlluToken(token)
 
-                if token.isalnum() and result_idx < len(alphanumeric_mystem_result):
+                if token.isalnum():
                     mystem_token = alphanumeric_mystem_result[result_idx]
 
                     if 'analysis' in mystem_token and mystem_token['analysis']:
                         pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
                         if pos == 'NOUN':
                             lex = self._backup_analyzer.parse(mystem_token['text'])[0].normal_form
-                            open_corpora_tags = self._backup_analyzer.parse(mystem_token['text'])[0].tag
-                            pos = self._backup_tag_converter.convert_pos(open_corpora_tags)
-                            tags = self._backup_tag_converter.convert_morphological_tags(open_corpora_tags)
+                            pos = self._backup_tag_converter.convert_pos(
+                                self._backup_analyzer.parse(mystem_token['text'])[0].tag)
+                            tags = self._backup_tag_converter.convert_morphological_tags(
+                                self._backup_analyzer.parse(mystem_token['text'])[0].tag)
                         else:
                             tags = self.tag_converter.convert_morphological_tags(mystem_token['analysis'][0]['gr'])
                             lex = mystem_token['analysis'][0]['lex']
