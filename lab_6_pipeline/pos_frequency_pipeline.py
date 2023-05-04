@@ -11,7 +11,6 @@ from core_utils.article.ud import extract_sentences_from_raw_conllu
 from core_utils.constants import ASSETS_PATH
 from core_utils.visualizer import visualize
 from lab_6_pipeline.pipeline import ConlluToken, ConlluSentence, CorpusManager, MorphologicalTokenDTO
-from seminars import EmptyFileError
 
 
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
@@ -53,6 +52,13 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
 
 
 # pylint: disable=too-few-public-methods
+class EmptyFileError(Exception):
+    """
+    Raises when a file is found to be empty
+    """
+    pass
+
+
 class POSFrequencyPipeline:
     """
     Counts frequencies of each POS in articles,
