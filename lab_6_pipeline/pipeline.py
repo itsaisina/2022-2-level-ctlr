@@ -384,7 +384,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
             for token in tokens_with_punctuations:
                 conllu_token = ConlluToken(token)
 
-                if token.isalnum():
+                if token.isalnum() and result_idx < len(alphanumeric_mystem_result):
                     mystem_token = alphanumeric_mystem_result[result_idx]
 
                     if 'analysis' in mystem_token and mystem_token['analysis']:
