@@ -295,7 +295,7 @@ class MorphologicalAnalysisPipeline:
         mystem = Mystem()
         mystem_result = mystem.analyze(text)
 
-        alphanumeric_mystem_result = list(filter(lambda x: x['text'].isalnum(), mystem_result))
+        alphanumeric_mystem_result = [x for x in mystem_result if x['text'].isalnum()]
 
         sentences = []
 
@@ -311,25 +311,19 @@ class MorphologicalAnalysisPipeline:
                     mystem_token = alphanumeric_mystem_result[result_idx]
 
                     if 'analysis' in mystem_token and mystem_token['analysis']:
-                        lex = mystem_token['analysis'][0]['lex']
+                        lemma = mystem_token['analysis'][0]['lex']
                         pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
                         tags = self.tag_converter.convert_morphological_tags(mystem_token['analysis'][0]['gr'])
                     elif mystem_token['text'].isdigit():
-                        lex = mystem_token['text']
-                        pos = 'NUM'
-                        tags = ''
+                        lemma, pos, tags = mystem_token['text'], 'NUM', ''
                     else:
-                        lex = mystem_token['text']
-                        pos = 'X'
-                        tags = ''
+                        lemma, pos, tags = mystem_token['text'], 'X', ''
 
                     result_idx += 1
                 else:
-                    lex = token
-                    pos = 'PUNCT'
-                    tags = ''
+                    lemma, pos, tags = token, 'PUNCT', ''
 
-                morph_params = MorphologicalTokenDTO(lex, pos, tags)
+                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
                 conllu_token.set_position(token_position)
                 conllu_token.set_morphological_parameters(morph_params)
                 sentence_tokens.append(conllu_token)
@@ -372,7 +366,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         mystem = Mystem()
         mystem_result = mystem.analyze(text)
 
-        alphanumeric_mystem_result = list(filter(lambda x: x['text'].isalnum(), mystem_result))
+        alphanumeric_mystem_result = [x for x in mystem_result if x['text'].isalnum()]
 
         sentences = []
 
@@ -390,30 +384,24 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                     if 'analysis' in mystem_token and mystem_token['analysis']:
                         pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
                         if pos == 'NOUN':
-                            lex = self._backup_analyzer.parse(mystem_token['text'])[0].normal_form
+                            lemma = self._backup_analyzer.parse(mystem_token['text'])[0].normal_form
                             pos = self._backup_tag_converter.convert_pos(
                                 self._backup_analyzer.parse(mystem_token['text'])[0].tag)
                             tags = self._backup_tag_converter.convert_morphological_tags(
                                 self._backup_analyzer.parse(mystem_token['text'])[0].tag)
                         else:
                             tags = self.tag_converter.convert_morphological_tags(mystem_token['analysis'][0]['gr'])
-                            lex = mystem_token['analysis'][0]['lex']
+                            lemma = mystem_token['analysis'][0]['lex']
                     elif mystem_token['text'].isdigit():
-                        lex = mystem_token['text']
-                        pos = 'NUM'
-                        tags = ''
+                        lemma, pos, tags = mystem_token['text'], 'NUM', ''
                     else:
-                        lex = mystem_token['text']
-                        pos = 'X'
-                        tags = ''
+                        lemma, pos, tags = mystem_token['text'], 'X', ''
 
                     result_idx += 1
                 else:
-                    lex = token
-                    pos = 'PUNCT'
-                    tags = ''
+                    lemma, pos, tags = token, 'PUNCT', ''
 
-                morph_params = MorphologicalTokenDTO(lex, pos, tags)
+                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
                 conllu_token.set_position(token_position)
                 conllu_token.set_morphological_parameters(morph_params)
                 sentence_tokens.append(conllu_token)
