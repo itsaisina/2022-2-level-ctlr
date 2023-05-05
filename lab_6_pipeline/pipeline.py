@@ -293,22 +293,20 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         mystem = Mystem()
-        mystem_result = mystem.analyze(text)
-
-        alphanumeric_mystem_result = [x for x in mystem_result if x['text'].isalnum()]
-
-        sentences = []
+        mystem_result = [x for x in mystem.analyze(text) if x['text'].isalnum()]
 
         result_idx = 0
+        sentences = []
+
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            sentence_tokens = []
             tokens_with_punctuations = re.findall(r'\w+|[.!?]+', sentence)
-            token_position = 1
-            for token in tokens_with_punctuations:
+
+            sentence_tokens = []
+            for token_position, token in enumerate(tokens_with_punctuations, start=1):
                 conllu_token = ConlluToken(token)
 
-                if token.isalnum() and result_idx < len(alphanumeric_mystem_result):
-                    mystem_token = alphanumeric_mystem_result[result_idx]
+                if token.isalnum() and result_idx < len(mystem_result):
+                    mystem_token = mystem_result[result_idx]
 
                     if 'analysis' in mystem_token and mystem_token['analysis']:
                         lemma = mystem_token['analysis'][0]['lex']
@@ -327,10 +325,8 @@ class MorphologicalAnalysisPipeline:
                 conllu_token.set_position(token_position)
                 conllu_token.set_morphological_parameters(morph_params)
                 sentence_tokens.append(conllu_token)
-                token_position += 1
 
-            sentence = ConlluSentence(sentence_position, sentence, sentence_tokens)
-            sentences.append(sentence)
+            sentences.append(ConlluSentence(sentence_position, sentence, sentence_tokens))
 
         return sentences
 
@@ -364,22 +360,20 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Returns the text representation as the list of ConlluSentence
         """
         mystem = Mystem()
-        mystem_result = mystem.analyze(text)
-
-        alphanumeric_mystem_result = [x for x in mystem_result if x['text'].isalnum()]
-
-        sentences = []
+        mystem_result = [x for x in mystem.analyze(text) if x['text'].isalnum()]
 
         result_idx = 0
+        sentences = []
+
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            sentence_tokens = []
             tokens_with_punctuations = re.findall(r'\w+|[.!?]+', sentence)
-            token_position = 1
-            for token in tokens_with_punctuations:
+
+            sentence_tokens = []
+            for token_position, token in enumerate(tokens_with_punctuations, start=1):
                 conllu_token = ConlluToken(token)
 
-                if token.isalnum() and result_idx < len(alphanumeric_mystem_result):
-                    mystem_token = alphanumeric_mystem_result[result_idx]
+                if token.isalnum() and result_idx < len(mystem_result):
+                    mystem_token = mystem_result[result_idx]
 
                     if 'analysis' in mystem_token and mystem_token['analysis']:
                         pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
@@ -407,8 +401,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                 sentence_tokens.append(conllu_token)
                 token_position += 1
 
-            sentence = ConlluSentence(sentence_position, sentence, sentence_tokens)
-            sentences.append(sentence)
+            sentences.append(ConlluSentence(sentence_position, sentence, sentence_tokens))
 
         return sentences
 
