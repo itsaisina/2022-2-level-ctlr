@@ -299,7 +299,7 @@ class MorphologicalAnalysisPipeline:
         sentences = []
 
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            tokens_with_punctuations = re.findall(r'\w+|[.!?]+', sentence)
+            tokens_with_punctuations = re.findall(r'\w+|[.]', sentence)
 
             sentence_tokens = []
             for token_position, token in enumerate(tokens_with_punctuations, start=1):
@@ -366,7 +366,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         sentences = []
 
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            tokens_with_punctuations = re.findall(r'\w+|[.!?]+', sentence)
+            tokens_with_punctuations = re.findall(r'\w+|[.]', sentence)
 
             sentence_tokens = []
             for token_position, token in enumerate(tokens_with_punctuations, start=1):
