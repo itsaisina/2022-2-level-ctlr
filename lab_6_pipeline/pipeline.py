@@ -3,6 +3,7 @@ Pipeline for CONLL-U formatting
 """
 import re
 import string
+from itertools import chain
 from pathlib import Path
 from typing import List
 
@@ -68,20 +69,16 @@ class CorpusManager:
         if len(raw_files) != len(meta_files):
             raise InconsistentDatasetError
 
-        def check_indices(file_indices: List[int]) -> None:
-            for ind, file_id in enumerate(file_indices[:-1]):
-                if file_indices[ind + 1] - file_id > 1:
-                    raise InconsistentDatasetError
-
         raw_ind = sorted([int(file.stem.split("_")[0]) for file in raw_files])
         meta_ind = sorted([int(file.stem.split("_")[0]) for file in meta_files])
 
-        check_indices(raw_ind)
-        check_indices(meta_ind)
+        for indices in (raw_ind, meta_ind):
+            for ind, file_id in enumerate(indices[:-1]):
+                if indices[ind + 1] - file_id > 1:
+                    raise InconsistentDatasetError
 
-        for raw_file, meta_file in zip(raw_files, meta_files):
-            if raw_file.stat().st_size == 0 or meta_file.stat().st_size == 0:
-                raise InconsistentDatasetError
+        if any(file.stat().st_size == 0 for file in chain(raw_files, meta_files)):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
