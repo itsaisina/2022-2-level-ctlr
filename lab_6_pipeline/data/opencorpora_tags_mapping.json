@@ -45,10 +45,5 @@
     "Animacy": {
         "anim": "Anim",
         "inan": "Inan"
-    },
-    "Tense": {
-        "pres": "Pres",
-        "futr": "Fut",
-        "past": "Past"
     }
 }

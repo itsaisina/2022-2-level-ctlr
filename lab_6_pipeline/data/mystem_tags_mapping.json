@@ -2,7 +2,6 @@
     "POS": {
         "A": "ADJ",
         "ADV": "ADV",
-        "ADVB": "ADV",
         "ADVPRO": "ADV",
         "ANUM": "ADJ",
         "APRO": "ADJ",
@@ -14,8 +13,7 @@
         "PR": "ADP",
         "S": "NOUN",
         "SPRO": "PRON",
-        "V": "VERB",
-        "PRED": "ADV"
+        "V": "VERB"
     },
     "Case": {
         "им": "Nom",
@@ -26,8 +24,7 @@
         "пр": "Loc",
         "парт": "Par",
         "местн": "Loc",
-        "зват": "Voc",
-        "им-acc": "Acc"
+        "зват": "Voc"
     },
     "Number": {
         "ед": "Sing",

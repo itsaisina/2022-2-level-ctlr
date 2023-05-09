@@ -9,8 +9,8 @@ from typing import List
 from pymorphy2 import MorphAnalyzer
 from pymystem3 import Mystem
 
-from core_utils.article.article import SentenceProtocol, Article, split_by_sentence
-from core_utils.article.io import to_cleaned, to_conllu
+from core_utils.article.article import SentenceProtocol, split_by_sentence
+from core_utils.article.io import to_cleaned, to_conllu, from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 # pylint: disable=too-few-public-methods
@@ -44,8 +44,8 @@ class CorpusManager:
         Initializes CorpusManager
         """
         self.path_to_raw_txt_data = path_to_raw_txt_data
-        self._validate_dataset()
         self._storage = {}
+        self._validate_dataset()
         self._scan_dataset()
 
     def _validate_dataset(self) -> None:
@@ -62,19 +62,25 @@ class CorpusManager:
         if not file_paths:
             raise EmptyDirectoryError
 
-        raw_files = [file for file in file_paths if file.suffix == ".txt" and file.stem.endswith("_raw")]
-        meta_files = [file for file in file_paths if file.suffix == ".json" and file.stem.endswith("_meta")]
+        raw_files = sorted(list(self.path_to_raw_txt_data.glob("*_raw.txt")))
+        meta_files = sorted(list(self.path_to_raw_txt_data.glob("*_meta.json")))
 
         if len(raw_files) != len(meta_files):
             raise InconsistentDatasetError
 
-        raw_ind = sorted([int(file.stem.split("_")[0]) for file in raw_files])
-        for ind, file_id in enumerate(raw_ind[:-1]):
-            if raw_ind[ind + 1] - file_id > 1:
-                raise InconsistentDatasetError
+        def check_indices(file_indices: List[int]) -> None:
+            for ind, file_id in enumerate(file_indices[:-1]):
+                if file_indices[ind + 1] - file_id > 1:
+                    raise InconsistentDatasetError
 
-        for raw_file in raw_files:
-            if raw_file.stat().st_size == 0:
+        raw_ind = sorted([int(file.stem.split("_")[0]) for file in raw_files])
+        meta_ind = sorted([int(file.stem.split("_")[0]) for file in meta_files])
+
+        check_indices(raw_ind)
+        check_indices(meta_ind)
+
+        for raw_file, meta_file in zip(raw_files, meta_files):
+            if raw_file.stat().st_size == 0 or meta_file.stat().st_size == 0:
                 raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
@@ -82,13 +88,8 @@ class CorpusManager:
         Register each dataset entry
         """
         for raw_file in self.path_to_raw_txt_data.glob("*_raw.txt"):
-            article_id = int(raw_file.stem.split("_")[0])
-            article = Article(url=None, article_id=article_id)
-
-            with open(raw_file, 'r', encoding='utf-8') as f:
-                article.text = f.read()
-
-            self._storage[article_id] = article
+            article_id = int(re.search(r'\d+', raw_file.stem)[0])
+            self._storage[article_id] = from_raw(raw_file)
 
     def get_articles(self) -> dict:
         """
@@ -124,14 +125,14 @@ class ConlluToken:
         self.position = 0
         self._morphological_parameters = MorphologicalTokenDTO()
 
+    def set_position(self, position: int) -> None:
+        self.position = position
+
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
         """
         self._morphological_parameters = parameters
-
-    def set_position(self, position: int) -> None:
-        self.position = position
 
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
@@ -161,7 +162,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return self._text.lower().translate(str.maketrans('', '', string.punctuation + "«»–"))
+        return re.sub(r'\W+', '', self._text.lower())
 
 
 class ConlluSentence(SentenceProtocol):
@@ -197,7 +198,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return " ".join(token.get_cleaned() for token in self._tokens).replace('  ', ' ').strip()
+        return " ".join(token.get_cleaned() for token in self._tokens if token.get_cleaned()).strip()
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -218,20 +219,16 @@ class MystemTagConverter(TagConverter):
         pos = self.convert_pos(tags)
         tags = re.sub(r'\(.+?\)', lambda match: match.group(0).split('|')[0], tags)
         extracted_tags = re.findall(r'[а-я]+', tags)
-        ud_tags = {}
 
         pos_specific_categories = {
             "NOUN": [self.case, self.number, self.gender, self.animacy],
             "VERB": [self.tense, self.number, self.gender],
             "ADJ": [self.case, self.number, self.gender],
-            "ADV": [],
-            "CCONJ": [],
-            "INTJ": [],
             "NUM": [self.case, self.number, self.gender],
-            "PART": [],
-            "ADP": [],
             "PRON": [self.case, self.number, self.gender, self.animacy],
         }
+
+        ud_tags = {}
 
         for tag in extracted_tags:
             for category in pos_specific_categories.get(pos, []):
@@ -244,8 +241,8 @@ class MystemTagConverter(TagConverter):
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
-        extracted_pos = re.search(r'[A-Z]+', tags)
-        return self._tag_mapping["POS"].get(extracted_pos[0], "")
+        extracted_pos = re.search(r'[A-Z]+', tags)[0]
+        return self._tag_mapping[self.pos][extracted_pos]
 
 
 class OpenCorporaTagConverter(TagConverter):
@@ -257,21 +254,27 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
-        for oc_tag, ud_tag in self._tag_mapping['POS'].items():
-            if oc_tag in tags:
-                return ud_tag
-        return 'UNKN'
+        oc_pos = tags.POS
+        return self._tag_mapping['POS'].get(oc_pos, self._tag_mapping['POS'].get('UNKN'))
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
         Converts the OpenCorpora tags into the UD format
         """
         ud_tags = {}
-        for category in ('Case', 'Number', 'Gender', 'Animacy'):
-            for oc_tag, ud_tag in self._tag_mapping[category].items():
-                if oc_tag in tags:
+        tag_properties = {
+            self.case: tags.case,
+            self.number: tags.number,
+            self.gender: tags.gender,
+            self.animacy: tags.animacy,
+        }
+
+        for category, oc_tag in tag_properties.items():
+            if oc_tag is not None:
+                ud_tag = self._tag_mapping[category].get(oc_tag)
+                if ud_tag is not None:
                     ud_tags[category] = ud_tag
-                    break
+
         return '|'.join(f'{k}={v}' for k, v in sorted(ud_tags.items()))
 
 
@@ -284,57 +287,60 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
-        path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
-        self.corpus_manager = corpus_manager
-        self.tag_converter = MystemTagConverter(path)
+        self._corpus = corpus_manager
+        self._mystem_analyzer = Mystem()
+        mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+        self._converter = MystemTagConverter(mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
-        mystem = Mystem()
-        mystem_result = [x for x in mystem.analyze(text) if x['text'].isalnum()]
-
-        result_idx = 0
-        sentences = []
-
+        conllu_sentences = []
+        result = (i for i in self._mystem_analyzer.analyze(text))
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            tokens_with_punctuations = re.findall(r'\w+|[.]', sentence)
+            conllu_tokens = []
+            original_sentence = sentence
 
-            sentence_tokens = []
-            for token_position, token in enumerate(tokens_with_punctuations, start=1):
-                conllu_token = ConlluToken(token)
+            tokens = []
+            for token in result:
+                if token['text'] not in sentence:
+                    continue
 
-                if token.isalnum() and result_idx < len(mystem_result):
-                    mystem_token = mystem_result[result_idx]
+                sentence = sentence.replace(token['text'], '', 1)
+                if any(c.isalnum() for c in token['text']):
+                    tokens.append(token)
 
-                    if 'analysis' in mystem_token and mystem_token['analysis']:
-                        lemma = mystem_token['analysis'][0]['lex']
-                        pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
-                        tags = self.tag_converter.convert_morphological_tags(mystem_token['analysis'][0]['gr'])
-                    elif mystem_token['text'].isdigit():
-                        lemma, pos, tags = mystem_token['text'], 'NUM', ''
-                    else:
-                        lemma, pos, tags = mystem_token['text'], 'X', ''
+                if not any(c.isalnum() for c in sentence):
+                    break
 
-                    result_idx += 1
+            tokens.append({'text': '.'})
+
+            for token_position, token in enumerate(tokens, start=1):
+                text = token['text']
+                if 'analysis' in token and token['analysis']:
+                    lex = token['analysis'][0]['lex']
+                    pos = self._converter.convert_pos(token['analysis'][0]['gr'])
+                    tags = self._converter.convert_morphological_tags(token['analysis'][0]['gr'])
                 else:
-                    lemma, pos, tags = token, 'PUNCT', ''
+                    tags, lex = '', text
+                    pos = 'PUNCT' if lex in string.punctuation else ('NUM' if lex.isdigit() else 'X')
 
-                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
+                conllu_token = ConlluToken(text)
+                morph_params = MorphologicalTokenDTO(lex, pos, tags)
                 conllu_token.set_position(token_position)
                 conllu_token.set_morphological_parameters(morph_params)
-                sentence_tokens.append(conllu_token)
+                conllu_tokens.append(conllu_token)
 
-            sentences.append(ConlluSentence(sentence_position, sentence, sentence_tokens))
-
-        return sentences
+            conllu_sentence = ConlluSentence(sentence_position, original_sentence, conllu_tokens)
+            conllu_sentences.append(conllu_sentence)
+        return conllu_sentences
 
     def run(self) -> None:
         """
         Performs basic preprocessing and writes processed text to files
         """
-        for article in self.corpus_manager.get_articles().values():
+        for article in self._corpus.get_articles().values():
             article.set_conllu_sentences(self._process(article.text))
             to_cleaned(article)
             to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
@@ -359,57 +365,57 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Returns the text representation as the list of ConlluSentence
         """
-        mystem = Mystem()
-        mystem_result = [x for x in mystem.analyze(text) if x['text'].isalnum()]
-
-        result_idx = 0
-        sentences = []
-
+        conllu_sentences = []
+        result = (i for i in self._mystem_analyzer.analyze(text))
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
-            tokens_with_punctuations = re.findall(r'\w+|[.]', sentence)
+            conllu_tokens = []
+            original_sentence = sentence
 
-            sentence_tokens = []
-            for token_position, token in enumerate(tokens_with_punctuations, start=1):
-                conllu_token = ConlluToken(token)
+            tokens = []
+            for token in result:
+                if token['text'] not in sentence:
+                    continue
 
-                if token.isalnum() and result_idx < len(mystem_result):
-                    mystem_token = mystem_result[result_idx]
+                sentence = sentence.replace(token['text'], '', 1)
+                if any(c.isalnum() for c in token['text']):
+                    tokens.append(token)
 
-                    if 'analysis' in mystem_token and mystem_token['analysis']:
-                        pos = self.tag_converter.convert_pos(mystem_token['analysis'][0]['gr'])
-                        if pos == 'NOUN':
-                            lemma = self._backup_analyzer.parse(mystem_token['text'])[0].normal_form
-                            pos = self._backup_tag_converter.convert_pos(
-                                self._backup_analyzer.parse(mystem_token['text'])[0].tag)
-                            tags = self._backup_tag_converter.convert_morphological_tags(
-                                self._backup_analyzer.parse(mystem_token['text'])[0].tag)
-                        else:
-                            tags = self.tag_converter.convert_morphological_tags(mystem_token['analysis'][0]['gr'])
-                            lemma = mystem_token['analysis'][0]['lex']
-                    elif mystem_token['text'].isdigit():
-                        lemma, pos, tags = mystem_token['text'], 'NUM', ''
+                if not any(c.isalnum() for c in sentence):
+                    break
+
+            tokens.append({'text': '.'})
+
+            for token_position, token in enumerate(tokens, start=1):
+                text = token['text']
+                if 'analysis' in token and token['analysis']:
+                    pos = self._converter.convert_pos(token['analysis'][0]['gr'])
+                    if pos == 'NOUN':
+                        lex = self._backup_analyzer.parse(text)[0].normal_form
+                        open_corpora_tags = self._backup_analyzer.parse(text)[0].tag
+                        pos = self._backup_tag_converter.convert_pos(open_corpora_tags)
+                        tags = self._backup_tag_converter.convert_morphological_tags(open_corpora_tags)
                     else:
-                        lemma, pos, tags = mystem_token['text'], 'X', ''
-
-                    result_idx += 1
+                        lex = token['analysis'][0]['lex']
+                        tags = self._converter.convert_morphological_tags(token['analysis'][0]['gr'])
                 else:
-                    lemma, pos, tags = token, 'PUNCT', ''
+                    tags, lex = '', text
+                    pos = 'PUNCT' if lex in string.punctuation else ('NUM' if lex.isdigit() else 'X')
 
-                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
+                conllu_token = ConlluToken(text)
+                morph_params = MorphologicalTokenDTO(lex, pos, tags)
                 conllu_token.set_position(token_position)
                 conllu_token.set_morphological_parameters(morph_params)
-                sentence_tokens.append(conllu_token)
-                token_position += 1
+                conllu_tokens.append(conllu_token)
 
-            sentences.append(ConlluSentence(sentence_position, sentence, sentence_tokens))
-
-        return sentences
+            conllu_sentence = ConlluSentence(sentence_position, original_sentence, conllu_tokens)
+            conllu_sentences.append(conllu_sentence)
+        return conllu_sentences
 
     def run(self) -> None:
         """
         Performs basic preprocessing and writes processed text to files
         """
-        for article in self.corpus_manager.get_articles().values():
+        for article in self._corpus.get_articles().values():
             article.set_conllu_sentences(self._process(article.text))
             to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=True)
 

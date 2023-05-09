@@ -45,7 +45,8 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
     token = ConlluToken(text=params[1])
     token.set_position(position=int(params[0]))
     morph_params = MorphologicalTokenDTO(lemma=params[2],
-                                         pos=params[3])
+                                         pos=params[3],
+                                         tags=params[5])
     token.set_morphological_parameters(morph_params)
 
     return token
