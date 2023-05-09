@@ -43,7 +43,7 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
     params = token_line.split('\t')
 
     token = ConlluToken(text=params[1])
-    token.set_position(position=int(params[0]))
+    token.position = int(params[0])
     morph_params = MorphologicalTokenDTO(lemma=params[2],
                                          pos=params[3],
                                          tags=params[5])

@@ -122,9 +122,6 @@ class ConlluToken:
         self.position = 0
         self._morphological_parameters = MorphologicalTokenDTO()
 
-    def set_position(self, position: int) -> None:
-        self.position = position
-
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
@@ -325,7 +322,7 @@ class MorphologicalAnalysisPipeline:
 
                 conllu_token = ConlluToken(text)
                 morph_params = MorphologicalTokenDTO(lex, pos, tags)
-                conllu_token.set_position(token_position)
+                conllu_token.position = token_position
                 conllu_token.set_morphological_parameters(morph_params)
                 conllu_tokens.append(conllu_token)
 
@@ -400,7 +397,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
 
                 conllu_token = ConlluToken(text)
                 morph_params = MorphologicalTokenDTO(lex, pos, tags)
-                conllu_token.set_position(token_position)
+                conllu_token.position = token_position
                 conllu_token.set_morphological_parameters(morph_params)
                 conllu_tokens.append(conllu_token)
 
