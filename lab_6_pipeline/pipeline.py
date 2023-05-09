@@ -285,7 +285,7 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
-        self._mystem_analyzer = Mystem()
+        self._mystem = Mystem()
         mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
         self._converter = MystemTagConverter(mapping_path)
 
@@ -294,7 +294,7 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        result = (i for i in self._mystem_analyzer.analyze(text))
+        result = (i for i in self._mystem.analyze(text))
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
             conllu_tokens = []
             original_sentence = sentence
@@ -363,7 +363,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        result = (i for i in self._mystem_analyzer.analyze(text))
+        result = (i for i in self._mystem.analyze(text))
         for sentence_position, sentence in enumerate(split_by_sentence(text)):
             conllu_tokens = []
             original_sentence = sentence
