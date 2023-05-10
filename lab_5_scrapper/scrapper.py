@@ -342,18 +342,19 @@ class CrawlerRecursive(Crawler):
         super().__init__(config)
         self.start_url = config.get_seed_urls()[0]
         self.num_visited_urls = 0
-        self.last_file_index = 0
+        self.last_file_index = 1
         self.visited_urls = []
         self.urls = []
-        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        self.load_crawler_data()
 
     def load_crawler_data(self) -> None:
         """
         Loads start_url and collected urls
         from a json file into crawler
         """
-        if self.crawler_data_path.exists():
-            with open(self.crawler_data_path, 'r', encoding='utf-8') as file:
+        crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        if crawler_data_path.exists():
+            with open(crawler_data_path, 'r', encoding='utf-8') as file:
                 try:
                     data = json.load(file)
                     self.last_file_index = data['last_file_idx']
@@ -376,7 +377,8 @@ class CrawlerRecursive(Crawler):
             'urls': self.urls,
             'visited_urls': self.visited_urls
         }
-        with open(self.crawler_data_path, 'w', encoding='utf-8') as file:
+        crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        with open(crawler_data_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=True, indent=4, separators=(', ', ': '))
 
     def find_articles(self) -> None:
@@ -396,7 +398,7 @@ class CrawlerRecursive(Crawler):
             elif not url:
                 href = link.get("href")
                 if href and href not in self.visited_urls \
-                        and href.startswith('https://chelny-izvest.ru/news/'):
+                        and urlparse(href).netloc == urlparse(self.start_url).netloc:
                     self.visited_urls.append(href)
 
         self.save_crawler_data()
@@ -431,12 +433,6 @@ def main_recursive() -> None:
     config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
     recursive_crawler = CrawlerRecursive(config=config)
-    if not recursive_crawler.crawler_data_path.exists():
-        recursive_crawler.last_file_index = 1
-        shutil.rmtree(ASSETS_PATH)
-        ASSETS_PATH.mkdir(parents=True)
-    else:
-        recursive_crawler.load_crawler_data()
     recursive_crawler.find_articles()
     for index in range(recursive_crawler.last_file_index,
                        len(recursive_crawler.urls) + 1):
