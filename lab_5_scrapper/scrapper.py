@@ -395,7 +395,8 @@ class CrawlerRecursive(Crawler):
                 self.urls.append(url)
             elif not url:
                 href = link.get("href")
-                if href and href not in self.visited_urls and href.startswith('https://chelny-izvest.ru/news/'):
+                if href and href not in self.visited_urls \
+                        and href.startswith('https://chelny-izvest.ru/news/'):
                     self.visited_urls.append(href)
 
         self.save_crawler_data()
