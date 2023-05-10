@@ -418,7 +418,6 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=config)
     crawler.find_articles()
-
     for ind, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url,
                             article_id=ind,
@@ -437,7 +436,6 @@ def main_recursive() -> None:
     prepare_environment(ASSETS_PATH)
     recursive_crawler = CrawlerRecursive(config=config)
     recursive_crawler.find_articles()
-
     for index, current_url in enumerate(recursive_crawler.urls[
                                         recursive_crawler.last_file_index - 1:],
                                         start=recursive_crawler.last_file_index):
