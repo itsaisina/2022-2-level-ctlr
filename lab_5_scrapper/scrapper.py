@@ -405,6 +405,8 @@ class CrawlerRecursive(Crawler):
 
         if len(self.urls) < self._config.get_num_articles():
             self.num_visited_urls += 1
+            self.last_file_index += 1
+            self.save_crawler_data()
             self.find_articles()
 
 
@@ -416,6 +418,7 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=config)
     crawler.find_articles()
+
     for ind, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url,
                             article_id=ind,
@@ -434,11 +437,10 @@ def main_recursive() -> None:
     prepare_environment(ASSETS_PATH)
     recursive_crawler = CrawlerRecursive(config=config)
     recursive_crawler.find_articles()
-    for index in range(recursive_crawler.last_file_index,
-                       len(recursive_crawler.urls) + 1):
-        recursive_crawler.last_file_index = index
-        recursive_crawler.save_crawler_data()
-        current_url = recursive_crawler.urls[index - 1]
+
+    for index, current_url in enumerate(recursive_crawler.urls[
+                                        recursive_crawler.last_file_index - 1:],
+                                        start=recursive_crawler.last_file_index):
         parser = HTMLParser(full_url=current_url,
                             article_id=index,
                             config=config)
