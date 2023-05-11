@@ -341,10 +341,9 @@ class CrawlerRecursive(Crawler):
     def __init__(self, config: Config):
         super().__init__(config)
         self.start_url = config.get_seed_urls()[0]
+        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
         self.num_visited_urls = 0
-        self.last_file_index = 1
         self.visited_urls = []
-        self.urls = []
         self.load_crawler_data()
 
     def load_crawler_data(self) -> None:
@@ -352,12 +351,10 @@ class CrawlerRecursive(Crawler):
         Loads start_url and collected urls
         from a json file into crawler
         """
-        crawler_data_path = Path(__file__).parent / 'crawler_data.json'
-        if crawler_data_path.exists():
-            with open(crawler_data_path, 'r', encoding='utf-8') as file:
+        if self.crawler_data_path.exists():
+            with open(self.crawler_data_path, 'r', encoding='utf-8') as file:
                 try:
                     data = json.load(file)
-                    self.last_file_index = data['last_file_idx']
                     self.num_visited_urls = data['num_visited_urls']
                     self.start_url = data['start_url']
                     self.urls = data['urls']
@@ -371,14 +368,12 @@ class CrawlerRecursive(Crawler):
         from crawler into a json file
         """
         data = {
-            'last_file_idx': self.last_file_index,
             'num_visited_urls': self.num_visited_urls,
             'start_url': self.start_url,
             'urls': self.urls,
             'visited_urls': self.visited_urls
         }
-        crawler_data_path = Path(__file__).parent / 'crawler_data.json'
-        with open(crawler_data_path, 'w', encoding='utf-8') as file:
+        with open(self.crawler_data_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=True, indent=4, separators=(', ', ': '))
 
     def find_articles(self) -> None:
@@ -387,25 +382,21 @@ class CrawlerRecursive(Crawler):
         """
         if self.num_visited_urls:
             self.start_url = self.visited_urls[self.num_visited_urls - 1]
-
         response = make_request(self.start_url, self._config)
         links_bs = BeautifulSoup(response.content, 'lxml')
-
         for link in links_bs.find_all('a'):
-            url = self._extract_url(link)
-            if url and url not in self.urls and len(self.urls) < self._config.get_num_articles():
-                self.urls.append(url)
-            elif not url:
+            if self._extract_url(link):
+                url = self._extract_url(link)
+                if url and url not in self.urls \
+                        and len(self.urls) < self._config.get_num_articles():
+                    self.urls.append(url)
+            else:
                 href = link.get("href")
                 if href and href not in self.visited_urls \
                         and urlparse(href).netloc == urlparse(self.start_url).netloc:
                     self.visited_urls.append(href)
-
-        self.save_crawler_data()
-
-        if len(self.urls) < self._config.get_num_articles():
+        while len(self.urls) < self._config.get_num_articles():
             self.num_visited_urls += 1
-            self.last_file_index += 1
             self.save_crawler_data()
             self.find_articles()
 
@@ -436,16 +427,14 @@ def main_recursive() -> None:
     prepare_environment(ASSETS_PATH)
     recursive_crawler = CrawlerRecursive(config=config)
     recursive_crawler.find_articles()
-    for index, current_url in enumerate(recursive_crawler.urls[
-                                        recursive_crawler.last_file_index - 1:],
-                                        start=recursive_crawler.last_file_index):
-        parser = HTMLParser(full_url=current_url,
-                            article_id=index,
+    for ind, url in enumerate(recursive_crawler.urls, start=1):
+        parser = HTMLParser(full_url=url,
+                            article_id=ind,
                             config=config)
-        parsed_article = parser.parse()
-        if isinstance(parsed_article, Article):
-            to_raw(parsed_article)
-            to_meta(parsed_article)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
