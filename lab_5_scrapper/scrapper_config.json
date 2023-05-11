@@ -1,27 +1,13 @@
 {
     "seed_urls": [
-        "https://chelny-izvest.ru",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/2",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/3",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/4",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/5",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/6",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/7",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/8",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/9",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/10",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/11",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/12",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/13",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/14",
-        "https://chelny-izvest.ru/news/widget/list/poslednie-novosti-news-page/page/15"
+        "https://chelny-izvest.ru"
     ],
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
         "cache-control": "max-age=0",
-        "cookie": "adtech_uid=82acf1fe-2193-4362-8e88-b041fc2b1b2a%3Achelny-izvest.ru; top100_id=t1.2148066.1082269297.1680500517167; tmr_lvid=aad313d76183c63412919aa1bfd2ee1d; tmr_lvidTS=1680500520007; _ym_uid=1680500516598580700; _ym_d=1680500520; _ym_isad=2; _ym_visorc=w; XSRF-TOKEN=eyJpdiI6IlFrWWZQckVENFlEejBsQVUzanQ4UEE9PSIsInZhbHVlIjoicWpmb1JQeTYwY253d3dxWGlrTTJ5UmNTd2ppT0FySG1WazBoN1FLM3pYelB3U2d4b0drK25ma3dLK0NBd0MxSmppUlJWTGxHR0JSaUFxQ0FjQUdFZlE9PSIsIm1hYyI6IjllMjY4MDIxOTFhYWJkMGEwZmJjNDMxYzkwYTlhNjJmOGY0NDZmYjU3NzZkYWFjMWNmOTMwYzE4ZjJlMDA0MzEifQ%3D%3D; chelny-izvest_cookie_name_=eyJpdiI6Ik9XOGJmS2JHUXFGRmpcL00wbEdjNWFnPT0iLCJ2YWx1ZSI6IlJ6RDJ6NllrV3VlMDVmaEhOb2RRTndzR3ZFa21CeGZmWk1xYkZycnZwXC9cL0lUdytYdzRPZWhPcUZNTnY2UEhmQ1dCR3dlVTNNVGg3NitHS3QrbHoyZUE9PSIsIm1hYyI6Ijg4YmEwM2Y0MWI5MjA4NGI3OThhNDgyZWY3OTg3YTAzYWY2MWVmOGViMzM1ZTNhYzY4NWJiNDM0ZTY4MzAxOTcifQ%3D%3D; last_visit=1680752632346%3A%3A1680763432346; t3_sid_2148066=s1.1460058806.1680763143726.1680763432350.3.7; tmr_detect=0%7C1680763434718",
+        "cookie": "adtech_uid=82acf1fe-2193-4362-8e88-b041fc2b1b 2a%3Achelny-izvest.ru; top100_id=t1.2148066.1082269297.1680500517167; tmr_lvid=aad313d76183c63412919aa1bfd2ee1d; tmr_lvidTS=1680500520007; _ym_uid=1680500516598580700; _ym_d=1680500520; _ym_isad=2; _ym_visorc=w; XSRF-TOKEN=eyJpdiI6IlFrWWZQckVENFlEejBsQVUzanQ4UEE9PSIsInZhbHVlIjoicWpmb1JQeTYwY253d3dxWGlrTTJ5UmNTd2ppT0FySG1WazBoN1FLM3pYelB3U2d4b0drK25ma3dLK0NBd0MxSmppUlJWTGxHR0JSaUFxQ0FjQUdFZlE9PSIsIm1hYyI6IjllMjY4MDIxOTFhYWJkMGEwZmJjNDMxYzkwYTlhNjJmOGY0NDZmYjU3NzZkYWFjMWNmOTMwYzE4ZjJlMDA0MzEifQ%3D%3D; chelny-izvest_cookie_name_=eyJpdiI6Ik9XOGJmS2JHUXFGRmpcL00wbEdjNWFnPT0iLCJ2YWx1ZSI6IlJ6RDJ6NllrV3VlMDVmaEhOb2RRTndzR3ZFa21CeGZmWk1xYkZycnZwXC9cL0lUdytYdzRPZWhPcUZNTnY2UEhmQ1dCR3dlVTNNVGg3NitHS3QrbHoyZUE9PSIsIm1hYyI6Ijg4YmEwM2Y0MWI5MjA4NGI3OThhNDgyZWY3OTg3YTAzYWY2MWVmOGViMzM1ZTNhYzY4NWJiNDM0ZTY4MzAxOTcifQ%3D%3D; last_visit=1680752632346%3A%3A1680763432346; t3_sid_2148066=s1.1460058806.1680763143726.1680763432350.3.7; tmr_detect=0%7C1680763434718",
         "referer": "https://chelny-izvest.ru/news/widget/list/poslednie-novosti",
         "sec-ch-ua": "'Google Chrome';v='111', 'Not(A:Brand';v='8', 'Chromium';v='111'",
         "sec-ch-ua-mobile": "?0",
@@ -34,7 +20,7 @@
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
     "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
-    "timeout": 20,
+    "timeout": 30,
     "should_verify_certificate": true,
     "headless_mode": true
 }
