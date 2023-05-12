@@ -63,8 +63,8 @@ class CorpusManager:
         if not file_paths:
             raise EmptyDirectoryError
 
-        raw_files = sorted(list(self.path_to_raw_txt_data.glob("*_raw.txt")))
-        meta_files = sorted(list(self.path_to_raw_txt_data.glob("*_meta.json")))
+        raw_files = list(self.path_to_raw_txt_data.glob("*_raw.txt"))
+        meta_files = list(self.path_to_raw_txt_data.glob("*_meta.json"))
 
         if len(raw_files) != len(meta_files):
             raise InconsistentDatasetError
@@ -85,7 +85,7 @@ class CorpusManager:
         Register each dataset entry
         """
         for raw_file in self.path_to_raw_txt_data.glob("*_raw.txt"):
-            article_id = int(re.search(r'\d+', raw_file.stem)[0])
+            article_id = int(raw_file.stem.split("_")[0])
             self._storage[article_id] = from_raw(raw_file)
 
     def get_articles(self) -> dict:
@@ -236,7 +236,7 @@ class MystemTagConverter(TagConverter):
         Extracts and converts the POS from the Mystem tags into the UD format
         """
         extracted_pos = re.search(r'[A-Z]+', tags)[0]
-        return self._tag_mapping[self.pos][extracted_pos]
+        return self._tag_mapping[self.pos][extracted_pos] if extracted_pos else 'X'
 
 
 class OpenCorporaTagConverter(TagConverter):
@@ -249,7 +249,7 @@ class OpenCorporaTagConverter(TagConverter):
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
         oc_pos = tags.POS
-        return self._tag_mapping['POS'].get(oc_pos, self._tag_mapping['POS'].get('UNKN'))
+        return self._tag_mapping[self.pos].get(oc_pos, self._tag_mapping[self.pos].get('UNKN'))
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
@@ -293,18 +293,22 @@ class MorphologicalAnalysisPipeline:
         Extracts tokens from the sentence
         """
         tokens = []
-        while sentence:
-            token = next(result)
+        try:
+            while sentence:
+                token = next(result)
 
-            if token['text'] not in sentence:
-                continue
+                if token['text'] not in sentence:
+                    continue
 
-            sentence = sentence.replace(token['text'], '', 1)
-            if any(c.isalnum() for c in token['text']):
-                tokens.append(token)
+                sentence = sentence.replace(token['text'], '', 1)
+                if token['text'].isalnum():
+                    tokens.append(token)
 
-            if not any(c.isalnum() for c in sentence):
-                break
+                if not any(c.isalnum() for c in sentence):
+                    break
+
+        except StopIteration:
+            print('Iteration was stopped.')
 
         tokens.append({'text': '.'})
         return tokens
