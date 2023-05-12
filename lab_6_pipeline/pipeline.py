@@ -5,7 +5,7 @@ import re
 import string
 from itertools import chain
 from pathlib import Path
-from typing import List
+from typing import List, Generator, Dict
 
 from pymorphy2 import MorphAnalyzer
 from pymystem3 import Mystem
@@ -264,10 +264,12 @@ class OpenCorporaTagConverter(TagConverter):
         }
 
         for category, oc_tag in tag_properties.items():
-            if oc_tag is not None:
-                ud_tag = self._tag_mapping[category].get(oc_tag)
-                if ud_tag is not None:
-                    ud_tags[category] = ud_tag
+            if oc_tag is None:
+                continue
+
+            ud_tag = self._tag_mapping[category].get(oc_tag)
+            if ud_tag is not None:
+                ud_tags[category] = ud_tag
 
         return '|'.join(f'{k}={v}' for k, v in sorted(ud_tags.items()))
 
@@ -286,29 +288,48 @@ class MorphologicalAnalysisPipeline:
         mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
         self._converter = MystemTagConverter(mapping_path)
 
+    def _extract_tokens(self, sentence: str, result: Generator) -> List[Dict[str, str]]:
+        """
+        Extracts tokens from the sentence
+        """
+        tokens = []
+        while sentence:
+            token = next(result)
+
+            if token['text'] not in sentence:
+                continue
+
+            sentence = sentence.replace(token['text'], '', 1)
+            if any(c.isalnum() for c in token['text']):
+                tokens.append(token)
+
+            if not any(c.isalnum() for c in sentence):
+                break
+
+        tokens.append({'text': '.'})
+        return tokens
+
+    def _create_conllu_token(self, token_position: int, text: str, lex: str, pos: str, tags: str) -> ConlluToken:
+        """
+        Creates a ConlluToken with the given parameters
+        """
+        conllu_token = ConlluToken(text)
+        morph_params = MorphologicalTokenDTO(lex, pos, tags)
+        conllu_token.position = token_position
+        conllu_token.set_morphological_parameters(morph_params)
+        return conllu_token
+
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
+        sentences = split_by_sentence(text)
         result = (i for i in self._mystem.analyze(text))
-        for sentence_position, sentence in enumerate(split_by_sentence(text)):
+
+        for sentence_position, original_sentence in enumerate(sentences):
             conllu_tokens = []
-            original_sentence = sentence
-
-            tokens = []
-            for token in result:
-                if token['text'] not in sentence:
-                    continue
-
-                sentence = sentence.replace(token['text'], '', 1)
-                if any(c.isalnum() for c in token['text']):
-                    tokens.append(token)
-
-                if not any(c.isalnum() for c in sentence):
-                    break
-
-            tokens.append({'text': '.'})
+            tokens = self._extract_tokens(original_sentence, result)
 
             for token_position, token in enumerate(tokens, start=1):
                 text = token['text']
@@ -320,10 +341,7 @@ class MorphologicalAnalysisPipeline:
                     tags, lex = '', text
                     pos = 'PUNCT' if lex in string.punctuation else ('NUM' if lex.isdigit() else 'X')
 
-                conllu_token = ConlluToken(text)
-                morph_params = MorphologicalTokenDTO(lex, pos, tags)
-                conllu_token.position = token_position
-                conllu_token.set_morphological_parameters(morph_params)
+                conllu_token = self._create_conllu_token(token_position, text, lex, pos, tags)
                 conllu_tokens.append(conllu_token)
 
             conllu_sentence = ConlluSentence(sentence_position, original_sentence, conllu_tokens)
@@ -360,34 +378,22 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
+        sentences = split_by_sentence(text)
         result = (i for i in self._mystem.analyze(text))
-        for sentence_position, sentence in enumerate(split_by_sentence(text)):
+
+        for sentence_position, original_sentence in enumerate(sentences):
             conllu_tokens = []
-            original_sentence = sentence
-
-            tokens = []
-            for token in result:
-                if token['text'] not in sentence:
-                    continue
-
-                sentence = sentence.replace(token['text'], '', 1)
-                if any(c.isalnum() for c in token['text']):
-                    tokens.append(token)
-
-                if not any(c.isalnum() for c in sentence):
-                    break
-
-            tokens.append({'text': '.'})
+            tokens = self._extract_tokens(original_sentence, result)
 
             for token_position, token in enumerate(tokens, start=1):
                 text = token['text']
                 if 'analysis' in token and token['analysis']:
                     pos = self._converter.convert_pos(token['analysis'][0]['gr'])
                     if pos == 'NOUN':
-                        lex = self._backup_analyzer.parse(text)[0].normal_form
-                        open_corpora_tags = self._backup_analyzer.parse(text)[0].tag
-                        pos = self._backup_tag_converter.convert_pos(open_corpora_tags)
-                        tags = self._backup_tag_converter.convert_morphological_tags(open_corpora_tags)
+                        pymorphy_analysis = self._backup_analyzer.parse(text)[0]
+                        lex = pymorphy_analysis.normal_form
+                        pos = self._backup_tag_converter.convert_pos(pymorphy_analysis.tag)
+                        tags = self._backup_tag_converter.convert_morphological_tags(pymorphy_analysis.tag)
                     else:
                         lex = token['analysis'][0]['lex']
                         tags = self._converter.convert_morphological_tags(token['analysis'][0]['gr'])
@@ -395,10 +401,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                     tags, lex = '', text
                     pos = 'PUNCT' if lex in string.punctuation else ('NUM' if lex.isdigit() else 'X')
 
-                conllu_token = ConlluToken(text)
-                morph_params = MorphologicalTokenDTO(lex, pos, tags)
-                conllu_token.position = token_position
-                conllu_token.set_morphological_parameters(morph_params)
+                conllu_token = self._create_conllu_token(token_position, text, lex, pos, tags)
                 conllu_tokens.append(conllu_token)
 
             conllu_sentence = ConlluSentence(sentence_position, original_sentence, conllu_tokens)
