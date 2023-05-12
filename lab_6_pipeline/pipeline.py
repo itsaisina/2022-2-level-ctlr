@@ -236,7 +236,7 @@ class MystemTagConverter(TagConverter):
         Extracts and converts the POS from the Mystem tags into the UD format
         """
         extracted_pos = re.search(r'[A-Z]+', tags)[0]
-        return self._tag_mapping[self.pos][extracted_pos] if extracted_pos else 'X'
+        return self._tag_mapping[self.pos][extracted_pos] if extracted_pos else '_'
 
 
 class OpenCorporaTagConverter(TagConverter):
