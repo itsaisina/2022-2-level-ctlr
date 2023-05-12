@@ -293,22 +293,22 @@ class MorphologicalAnalysisPipeline:
         Extracts tokens from the sentence
         """
         tokens = []
-        try:
-            while sentence:
+        while sentence:
+            try:
                 token = next(result)
+            except StopIteration:
+                print('Iteration was stopped.')
+                break
 
-                if token['text'] not in sentence:
-                    continue
+            if token['text'] not in sentence:
+                continue
 
-                sentence = sentence.replace(token['text'], '', 1)
-                if token['text'].isalnum():
-                    tokens.append(token)
+            sentence = sentence.replace(token['text'], '', 1)
+            if token['text'].isalnum():
+                tokens.append(token)
 
-                if not any(c.isalnum() for c in sentence):
-                    break
-
-        except StopIteration:
-            print('Iteration was stopped.')
+            if not any(c.isalnum() for c in sentence):
+                break
 
         tokens.append({'text': '.'})
         return tokens
